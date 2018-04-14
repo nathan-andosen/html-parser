@@ -6,7 +6,29 @@
  */
 export class Utility {
 
-  
+  /**
+   * Remove all white space from text
+   * 
+   * @param {string} text 
+   * @returns 
+   * @memberof Utility
+   */
+  public removeWhitespace(text: string) {
+    var tab = '\u0009';
+    var noBreakSpace = '\u00A0';
+    var newLine = '\n';
+    var CR = '\u000D';
+    var LF = '\u000A';
+
+    text = text.trim();
+    text = text.split(' ').join("");
+    text = text.split(tab).join("");
+    text = text.split(noBreakSpace).join("");
+    text = text.split(newLine).join("");
+    text = text.split(CR).join("");
+    text = text.split(LF).join("");
+    return text;
+  }
 
 
   /**

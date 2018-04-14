@@ -101,6 +101,7 @@ export class HtmlParser {
     let endIndex = (posOfFirstSpace > -1 && posOfFirstSpace < posOfGreaterThan)
       ? posOfFirstSpace : posOfGreaterThan;
     let name = tag.substring(1, endIndex);
+    name = utility.removeWhitespace(name);
     return {
       type: ELEMENT_TYPES.TAG,
       tagType: this.getTagType(name),

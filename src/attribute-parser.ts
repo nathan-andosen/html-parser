@@ -113,10 +113,15 @@ export class AttributeParser {
     if(ch === '=') {
       // end of the attribute name
       this.state.mode = PARSER_MODES.READING_ATTR_VALUE;
+    } else if(ch === '/') {
+      // not an attribute, probably just an end tag, like <input />
+      // do nothing
     } else if(this.isWhitespace(ch)) {
-      // must be an attribute without a value
-      attr[this.state.attrName] = null;
-      this.state.attrName = '';
+      // possibily be an attribute without a value
+      if(this.state.attrName) {
+        attr[this.state.attrName] = null;
+        this.state.attrName = '';
+      }
     } else {
       this.state.attrName = this.state.attrName + ch;
     }
@@ -167,9 +172,7 @@ export class AttributeParser {
       // we possibiliy have attributes
       let text = tag.substring(posOfFirstSpace, posOfGreaterThan);
       text = text.trim();
-      if(text.indexOf('/') < 0) {
-        attr = this._parse(text);
-      }
+      attr = this._parse(text);
     }
     return attr;
   }

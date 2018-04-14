@@ -43,6 +43,7 @@ var HtmlParser = (function () {
         var endIndex = (posOfFirstSpace > -1 && posOfFirstSpace < posOfGreaterThan)
             ? posOfFirstSpace : posOfGreaterThan;
         var name = tag.substring(1, endIndex);
+        name = utility_1.utility.removeWhitespace(name);
         return {
             type: constants_1.ELEMENT_TYPES.TAG,
             tagType: this.getTagType(name),

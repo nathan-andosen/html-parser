@@ -3,6 +3,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Utility = (function () {
     function Utility() {
     }
+    Utility.prototype.removeWhitespace = function (text) {
+        var tab = '\u0009';
+        var noBreakSpace = '\u00A0';
+        var newLine = '\n';
+        var CR = '\u000D';
+        var LF = '\u000A';
+        text = text.trim();
+        text = text.split(' ').join("");
+        text = text.split(tab).join("");
+        text = text.split(noBreakSpace).join("");
+        text = text.split(newLine).join("");
+        text = text.split(CR).join("");
+        text = text.split(LF).join("");
+        return text;
+    };
     Utility.prototype.isLetter = function (ch) {
         return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
     };

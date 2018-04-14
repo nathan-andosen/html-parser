@@ -65,9 +65,13 @@ var AttributeParser = (function () {
         if (ch === '=') {
             this.state.mode = PARSER_MODES.READING_ATTR_VALUE;
         }
+        else if (ch === '/') {
+        }
         else if (this.isWhitespace(ch)) {
-            attr[this.state.attrName] = null;
-            this.state.attrName = '';
+            if (this.state.attrName) {
+                attr[this.state.attrName] = null;
+                this.state.attrName = '';
+            }
         }
         else {
             this.state.attrName = this.state.attrName + ch;
@@ -99,9 +103,7 @@ var AttributeParser = (function () {
         if (posOfFirstSpace > -1 && posOfFirstSpace < posOfGreaterThan) {
             var text = tag.substring(posOfFirstSpace, posOfGreaterThan);
             text = text.trim();
-            if (text.indexOf('/') < 0) {
-                attr = this._parse(text);
-            }
+            attr = this._parse(text);
         }
         return attr;
     };

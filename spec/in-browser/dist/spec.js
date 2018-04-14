@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "/dist/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 2);
+/******/ 	return __webpack_require__(__webpack_require__.s = 3);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -135,9 +135,13 @@ var AttributeParser = (function () {
         if (ch === '=') {
             this.state.mode = PARSER_MODES.READING_ATTR_VALUE;
         }
+        else if (ch === '/') {
+        }
         else if (this.isWhitespace(ch)) {
-            attr[this.state.attrName] = null;
-            this.state.attrName = '';
+            if (this.state.attrName) {
+                attr[this.state.attrName] = null;
+                this.state.attrName = '';
+            }
         }
         else {
             this.state.attrName = this.state.attrName + ch;
@@ -169,9 +173,7 @@ var AttributeParser = (function () {
         if (posOfFirstSpace > -1 && posOfFirstSpace < posOfGreaterThan) {
             var text = tag.substring(posOfFirstSpace, posOfGreaterThan);
             text = text.trim();
-            if (text.indexOf('/') < 0) {
-                attr = this._parse(text);
-            }
+            attr = this._parse(text);
         }
         return attr;
     };
@@ -239,22 +241,73 @@ exports.TAG_TYPES = {
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
+"use strict";
 
-// Our webpack.unit.tests.config.js file uses this to require all unit test files
-// so they can be tested in a browser for debugging
-
-// require all test files
-var testsContext = __webpack_require__(3);
-testsContext.keys().forEach(testsContext);
+Object.defineProperty(exports, "__esModule", { value: true });
+var Utility = (function () {
+    function Utility() {
+    }
+    Utility.prototype.removeWhitespace = function (text) {
+        var tab = '\u0009';
+        var noBreakSpace = '\u00A0';
+        var newLine = '\n';
+        var CR = '\u000D';
+        var LF = '\u000A';
+        text = text.trim();
+        text = text.split(' ').join("");
+        text = text.split(tab).join("");
+        text = text.split(noBreakSpace).join("");
+        text = text.split(newLine).join("");
+        text = text.split(CR).join("");
+        text = text.split(LF).join("");
+        return text;
+    };
+    Utility.prototype.isLetter = function (ch) {
+        return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
+    };
+    Utility.prototype.isStartOfTag = function (ch, nextCh) {
+        if (!ch || !nextCh) {
+            return false;
+        }
+        return (ch === "<" && this.isLetter(nextCh));
+    };
+    Utility.prototype.isEndOfTag = function (ch, nextCh) {
+        if (!ch || !nextCh) {
+            return false;
+        }
+        return (ch === "<" && nextCh === "/");
+    };
+    Utility.prototype.isStartOfComment = function (text) {
+        return (text.indexOf('<!--') === 0);
+    };
+    return Utility;
+}());
+exports.Utility = Utility;
+var utility = new Utility();
+exports.utility = utility;
 
 
 /***/ }),
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
+
+// Our webpack.unit.tests.config.js file uses this to require all unit test files
+// so they can be tested in a browser for debugging
+
+// require all test files
+var testsContext = __webpack_require__(4);
+testsContext.keys().forEach(testsContext);
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
 var map = {
-	"./attribute-parser.spec": 4,
-	"./html-parser.spec": 5
+	"./attribute-parser.spec": 5,
+	"./html-parser.spec": 6,
+	"./utility.spec": 9
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -270,30 +323,7 @@ webpackContext.keys = function webpackContextKeys() {
 };
 webpackContext.resolve = webpackContextResolve;
 module.exports = webpackContext;
-webpackContext.id = 3;
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var attribute_parser_1 = __webpack_require__(0);
-describe('Attribute parser', function () {
-    describe('parse()', function () {
-        it('should parse attributes', function () {
-            var attrParser = new attribute_parser_1.AttributeParser();
-            var tag = "<p class='abc db' aria-label=\"Easy one two\" custom=\"'text'\" val='' required custom-again=true abc-d='1'>";
-            console.log(tag);
-            var output = attrParser.parse(tag);
-            console.log(JSON.stringify(output, null, 2));
-            var output2 = attrParser.reverse(output);
-            console.log(output2);
-        });
-    });
-});
-
+webpackContext.id = 4;
 
 /***/ }),
 /* 5 */
@@ -302,17 +332,66 @@ describe('Attribute parser', function () {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var src_1 = __webpack_require__(6);
-describe('HtmlParser', function () {
+var attribute_parser_1 = __webpack_require__(0);
+describe('Attribute parser', function () {
+    var attrParser = new attribute_parser_1.AttributeParser();
     describe('parse()', function () {
-        fit('should parse basic tag', function () {
-            var html = "<p class='a'>hi <!-- comment --><br></p>";
-            console.log(html);
-            var htmlParser = new src_1.HtmlParser();
-            var output = htmlParser.parse(html);
-            console.log(JSON.stringify(output, null, 2));
-            var htmlOutput = htmlParser.reverse(output);
-            console.log(htmlOutput);
+        it('should parse attributes with double quotes', function () {
+            var tag = '<p class="class-one" custom-attr="one two" txt="\'one\'">';
+            var expectedResult = { "class": "\"class-one\"", "custom-attr": "\"one two\"", "txt": "\"'one'\"" };
+            var output = attrParser.parse(tag);
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should work with single quotes', function () {
+            var tag = "<span class='cls' cus-attr='one two'>";
+            var expectedResult = { "class": "'cls'", "cus-attr": "'one two'" };
+            var output = attrParser.parse(tag);
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should handle values with no quotes', function () {
+            var tag = "<div show=true hide=false>";
+            var expectedResult = { "show": "true", "hide": "false" };
+            var output = attrParser.parse(tag);
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should work with attributes with no values', function () {
+            var tag = "<input required cus='one' />";
+            var expectedResult = { "required": null, "cus": "'one'" };
+            var output = attrParser.parse(tag);
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should handle no attributes', function () {
+            var tag = "<div>";
+            var output = attrParser.parse(tag);
+            expect(JSON.stringify(output)).toEqual("{}");
+            tag = "<br/>";
+            output = attrParser.parse(tag);
+            expect(JSON.stringify(output)).toEqual("{}");
+            tag = "<br />";
+            output = attrParser.parse(tag);
+            expect(JSON.stringify(output)).toEqual("{}");
+        });
+        it('should parse complex attributes', function () {
+            var attrParser = new attribute_parser_1.AttributeParser();
+            var tag = "<p class='abc db' aria-label=\"Easy one two\" custom=\"'text'\" val='' required custom-again=true abc-d='1'>";
+            var expectedResult = { "class": "'abc db'", "aria-label": "\"Easy one two\"", "custom": "\"'text'\"", "val": "''", "required": null, "custom-again": "true", "abc-d": "'1'" };
+            var output = attrParser.parse(tag);
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should parse attributes over different lines', function () {
+            var tag = "<p class=\"hi\"\n        custom='123' required \n        cust=true >";
+            var expectedResult = { "class": "\"hi\"", "custom": "'123'", "required": null, "cust": "true" };
+            var output = attrParser.parse(tag);
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+    });
+    describe('reverse()', function () {
+        it('should reverse attributes object returned from parse function', function () {
+            var tag = "<p class='one two' required custom=\"hi\">";
+            var expectedResult = "class='one two' required custom=\"hi\"";
+            var output = attrParser.parse(tag);
+            var textAttr = attrParser.reverse(output);
+            expect(textAttr).toEqual(expectedResult);
         });
     });
 });
@@ -324,12 +403,37 @@ describe('HtmlParser', function () {
 
 "use strict";
 
-function __export(m) {
-    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-}
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(1));
-__export(__webpack_require__(7));
+var src_1 = __webpack_require__(7);
+describe('HtmlParser', function () {
+    var htmlParser = new src_1.HtmlParser();
+    describe('parse()', function () {
+        it('should parse plain text', function () {
+            var html = "plain text ";
+            var expectedResult = [{ "type": "text", "data": "plain text " }];
+            var output = htmlParser.parse(html);
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should parse plain text with tag', function () {
+            var html = "plain text <br />";
+            var expectedResult = [{ "type": "text", "data": "plain text " }, { "type": "tag", "tagType": "empty", "name": "br", "attributes": {}, "children": [] }];
+            var output = htmlParser.parse(html);
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should handle html comment', function () {
+            var html = "<div><!--This is not seen-->Hello world!</div>";
+            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "div", "attributes": {}, "children": [{ "type": "comment", "data": "This is not seen" }, { "type": "text", "data": "Hello world!" }] }];
+            var output = htmlParser.parse(html);
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should parse tag split over lines', function () {
+            var html = "hi\n<p\n  class=\"one\">\n  a paragraph\n</p>";
+            var expectedResult = [{ "type": "text", "data": "hi\n" }, { "type": "tag", "tagType": "default", "name": "p", "attributes": { "class": "\"one\"" }, "children": [{ "type": "text", "data": "\n  a paragraph\n" }] }];
+            var output = htmlParser.parse(html);
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+    });
+});
 
 
 /***/ }),
@@ -338,8 +442,22 @@ __export(__webpack_require__(7));
 
 "use strict";
 
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
 Object.defineProperty(exports, "__esModule", { value: true });
-var utility_1 = __webpack_require__(8);
+__export(__webpack_require__(1));
+__export(__webpack_require__(8));
+
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var utility_1 = __webpack_require__(2);
 var constants_1 = __webpack_require__(1);
 var attribute_parser_1 = __webpack_require__(0);
 var HtmlParser = (function () {
@@ -382,6 +500,7 @@ var HtmlParser = (function () {
         var endIndex = (posOfFirstSpace > -1 && posOfFirstSpace < posOfGreaterThan)
             ? posOfFirstSpace : posOfGreaterThan;
         var name = tag.substring(1, endIndex);
+        name = utility_1.utility.removeWhitespace(name);
         return {
             type: constants_1.ELEMENT_TYPES.TAG,
             tagType: this.getTagType(name),
@@ -607,38 +726,25 @@ exports.HtmlParser = HtmlParser;
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Utility = (function () {
-    function Utility() {
-    }
-    Utility.prototype.isLetter = function (ch) {
-        return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
-    };
-    Utility.prototype.isStartOfTag = function (ch, nextCh) {
-        if (!ch || !nextCh) {
-            return false;
-        }
-        return (ch === "<" && this.isLetter(nextCh));
-    };
-    Utility.prototype.isEndOfTag = function (ch, nextCh) {
-        if (!ch || !nextCh) {
-            return false;
-        }
-        return (ch === "<" && nextCh === "/");
-    };
-    Utility.prototype.isStartOfComment = function (text) {
-        return (text.indexOf('<!--') === 0);
-    };
-    return Utility;
-}());
-exports.Utility = Utility;
-var utility = new Utility();
-exports.utility = utility;
+var utility_1 = __webpack_require__(2);
+describe('Utility', function () {
+    describe('removeWhitespace()', function () {
+        it('should remove all white space', function () {
+            var text = utility_1.utility.removeWhitespace(" nathan\n");
+            expect(text).toEqual("nathan");
+            text = utility_1.utility.removeWhitespace(" \u000D\u000Anathan\n");
+            expect(text).toEqual("nathan");
+            text = utility_1.utility.removeWhitespace(" \u000D\u000Anat han\n");
+            expect(text).toEqual("nathan");
+        });
+    });
+});
 
 
 /***/ })
