@@ -36,14 +36,17 @@ describe('HtmlParser', () => {
     // });
 
     // <p>basic</p>
-    it('should parse basic tag', () => {
-      let html = "<p class=\"hey you\">hi \"bye\"</p>";
+    fit('should parse basic tag', () => {
+      let html = "<p class='a'>hi <!-- comment --><br></p>";
       // let html = "<p>hi <span>there</span></p> bye";
       // let html = "<body><p>hi</p><script type=\"text/javascript\">var a = '<div></div>';</script></body>";
       // let html = "<p><!-- This is a comment -->Hello world!</p>";
+      console.log(html);
       let htmlParser = new HtmlParser();
       let output = htmlParser.parse(html);
       console.log(JSON.stringify(output, null, 2));
+      let htmlOutput = htmlParser.reverse(output);
+      console.log(htmlOutput);
     });
   });
 });

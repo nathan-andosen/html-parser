@@ -11,11 +11,16 @@
       if(!val) { alert('Enter in some html'); }
       var htmlParser = new Thenja.HtmlParser();
       var result = htmlParser.parse(val);
-      document.getElementById("txtHtmlNodes").value = JSON.stringify(result, null, 2);
+      document.getElementById("txtHtmlNodes").value 
+        = JSON.stringify(result, null, 2);
     }
 
     function parseHtmlNodes() {
-      
+      var htmlParser = new Thenja.HtmlParser();
+      var val = document.getElementById("txtHtmlNodes").value;
+      var obj = JSON.parse(val);
+      document.getElementById("txtHtmlTranslated").value 
+        = htmlParser.reverse(obj);
     }
   </script>
 </head>
@@ -24,7 +29,12 @@
 
   <div style="position: absolute; top: 10px; left: 10px;">
     <textarea id="txtHtml" cols="40" rows="20">
-<p>Hi<div></div></p>
+<p>
+  Good day
+  <span aria-label="green apples">
+    apples
+  </span>
+</p>
 </textarea>
   </div>
 

@@ -99,9 +99,23 @@ var AttributeParser = (function () {
         if (posOfFirstSpace > -1 && posOfFirstSpace < posOfGreaterThan) {
             var text = tag.substring(posOfFirstSpace, posOfGreaterThan);
             text = text.trim();
-            attr = this._parse(text);
+            if (text.indexOf('/') < 0) {
+                attr = this._parse(text);
+            }
         }
         return attr;
+    };
+    AttributeParser.prototype.reverse = function (attributes) {
+        var textAttr = '';
+        for (var key in attributes) {
+            if (attributes[key] === null) {
+                textAttr += ' ' + key;
+            }
+            else {
+                textAttr += ' ' + key + '=' + attributes[key];
+            }
+        }
+        return textAttr.trim();
     };
     return AttributeParser;
 }());

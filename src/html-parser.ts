@@ -8,28 +8,6 @@ import {
 import { iHtmlElement, iSearchTagResult, iState } from './interfaces';
 import { AttributeParser } from './attribute-parser';
 
-/**
-  SPECIAL TAGS:
-  -----------
-  <style></style>
-  <script></script>
-  <!-- A Comment -->
-  CDATA (We wont care about this)
-
-  TODO:
-  ----------
-  - (DONE) parse style tags
-  - (DONE) parse script tags
-  - (DONE) parse comment tags
-  - (DONE) parse attributes
-  - add callback error handling and done handling
-
-
- */
-
-
-
-
 
 /**
  * Parse html string into an array of json objects that represent html elements
@@ -93,6 +71,14 @@ export class HtmlParser {
   }
 
 
+  /**
+   * Create a comment node
+   * 
+   * @private
+   * @param {string} comment 
+   * @returns {iHtmlElement} 
+   * @memberof HtmlParser
+   */
   private createCommentNode(comment: string): iHtmlElement {
     return {
       type: ELEMENT_TYPES.COMMENT,
@@ -115,7 +101,6 @@ export class HtmlParser {
     let endIndex = (posOfFirstSpace > -1 && posOfFirstSpace < posOfGreaterThan)
       ? posOfFirstSpace : posOfGreaterThan;
     let name = tag.substring(1, endIndex);
-    // TODO: get attributes of element
     return {
       type: ELEMENT_TYPES.TAG,
       tagType: this.getTagType(name),
@@ -182,9 +167,13 @@ export class HtmlParser {
   }
 
 
-
-
-
+  /**
+   * Parse for text
+   * 
+   * @private
+   * @param {iHtmlElement} currentElement 
+   * @memberof HtmlParser
+   */
   private parseText(currentElement: iHtmlElement) {
     let nextText = this.state.html.substring(this.state.currentPos);
     let tagResult = this.getNextTag(nextText);
@@ -204,6 +193,15 @@ export class HtmlParser {
   }
 
 
+  /**
+   * Handle finding the start tag of a html element
+   * 
+   * @private
+   * @param {iSearchTagResult} tagResult 
+   * @param {string} nextText 
+   * @param {iHtmlElement} currentElement 
+   * @memberof HtmlParser
+   */
   private handleStartTagInText(tagResult: iSearchTagResult, 
   nextText: string, currentElement: iHtmlElement): void {
     if(tagResult.pos > 0) {
@@ -219,7 +217,15 @@ export class HtmlParser {
   }
 
 
-
+  /**
+   * Handing finding the end tag of a html element
+   * 
+   * @private
+   * @param {iSearchTagResult} tagResult 
+   * @param {string} nextText 
+   * @param {iHtmlElement} currentElement 
+   * @memberof HtmlParser
+   */
   private handleEndTagInText(tagResult: iSearchTagResult, 
   nextText: string, currentElement: iHtmlElement): void {
     if(tagResult.pos > 0) {
@@ -248,6 +254,15 @@ export class HtmlParser {
   }
 
 
+  /**
+   * Handle finding a comment in text
+   * 
+   * @private
+   * @param {iSearchTagResult} tagResult 
+   * @param {string} nextText 
+   * @param {iHtmlElement} currentElement 
+   * @memberof HtmlParser
+   */
   private handleCommentInText(tagResult: iSearchTagResult, 
   nextText: string, currentElement: iHtmlElement) {
     if(tagResult.pos > 0) {
@@ -268,23 +283,23 @@ export class HtmlParser {
     this._parse(currentElement);
   }
 
-  
 
-
-  
-
-
+  /**
+   * Parse a tag
+   * 
+   * @private
+   * @param {iHtmlElement} currentElement 
+   * @memberof HtmlParser
+   */
   private parseTag(currentElement: iHtmlElement) {
     let nextText = this.state.html.substring(this.state.currentPos);
     let posEndTag = nextText.indexOf('>');
     posEndTag++;
     let tagText = nextText.substring(0, posEndTag);
     let tagNode = this.createTagNode(tagText);
-
     // move to the end of our start tag
     this.state.currentPos = this.state.currentPos + posEndTag;
     this.addNodeElement(tagNode, currentElement);
-    // this.state.output.push(tagNode);
     this.state.mode = MODE_TYPES.TEXT;
     if(tagNode.tagType === TAG_TYPES.EMPTY) {
       // empty tags can not have children
@@ -304,12 +319,28 @@ export class HtmlParser {
   }
 
 
+  /**
+   * Parse for attributes in a html tag
+   * 
+   * @private
+   * @param {string} tag 
+   * @returns {{ [key: string]: any }} 
+   * @memberof HtmlParser
+   */
   private parseAttributes(tag: string): { [key: string]: any } {
     let attrParser = new AttributeParser();
     return attrParser.parse(tag);
   }
 
 
+  /**
+   * Parse a script tag like: <script> or <style>
+   * 
+   * @private
+   * @param {iHtmlElement} currentElement 
+   * @param {string} endTag 
+   * @memberof HtmlParser
+   */
   private parseScript(currentElement: iHtmlElement, endTag: string) {
     let nextText = this.state.html.substring(this.state.currentPos);
     let posOfEndTag = nextText.indexOf(endTag);
@@ -329,6 +360,13 @@ export class HtmlParser {
   }
 
 
+  /**
+   * Keep parsing the html string
+   * 
+   * @private
+   * @param {iHtmlElement} currentElement 
+   * @memberof HtmlParser
+   */
   private _parse(currentElement: iHtmlElement) {
     switch(this.state.mode) {
       case MODE_TYPES.TEXT:
@@ -347,6 +385,13 @@ export class HtmlParser {
   }
 
 
+  /**
+   * Parse a html string
+   * 
+   * @param {string} html 
+   * @returns {iHtmlElement []} 
+   * @memberof HtmlParser
+   */
   public parse(html: string):iHtmlElement [] {
     this.reset();
     this.state.html = html;
@@ -355,4 +400,54 @@ export class HtmlParser {
   }
 
 
+  /**
+   * Reverse the output from the parse function back to html string
+   * 
+   * @param {iHtmlElement[]} htmlNodes 
+   * @returns {string} 
+   * @memberof HtmlParser
+   */
+  public reverse(htmlNodes: iHtmlElement[]) {
+    return this.reverseNodes(0, htmlNodes, '');
+  }
+
+
+  /**
+   * Reverse an array of html element nodes into a html string
+   * 
+   * @private
+   * @param {number} index 
+   * @param {iHtmlElement[]} htmlNodes 
+   * @param {string} html 
+   * @returns 
+   * @memberof HtmlParser
+   */
+  private reverseNodes(index: number, htmlNodes: iHtmlElement[], html: string) {
+    if(index >= htmlNodes.length) {
+      return html;
+    }
+    let node = htmlNodes[index];
+    if(node.type === ELEMENT_TYPES.TEXT) {
+      html += node.data;
+    } else if(node.type === ELEMENT_TYPES.COMMENT) {
+      html += '<!--' + node.data + '-->';
+    } else {
+      let attrParser = new AttributeParser();
+      let textAttr = attrParser.reverse(node.attributes);
+      textAttr = (textAttr.length > 0) ? ' ' + textAttr : textAttr;
+      // tag type
+      if(node.tagType === TAG_TYPES.EMPTY) {
+        html += '<' + node.name + textAttr + ' />';
+      } else {
+        html += '<' + node.name + textAttr + '>';
+        if(node.children && node.children.length > 0) {
+          let newHtml = this.reverseNodes(0, node.children, '');
+          html += newHtml;
+        }
+        html += '</' + node.name + '>';
+      }
+    }
+    index++;
+    return this.reverseNodes(index, htmlNodes, html);
+  }
 }

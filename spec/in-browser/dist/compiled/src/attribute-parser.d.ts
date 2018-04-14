@@ -7,4 +7,7 @@ export declare class AttributeParser {
     private handleReadingAttrName(ch, attr);
     private handleReadingAttrValue(ch, attr);
     parse(tag: string): {};
+    reverse(attributes: {
+        [key: string]: any;
+    }): string;
 }

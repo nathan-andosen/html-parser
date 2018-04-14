@@ -169,9 +169,23 @@ var AttributeParser = (function () {
         if (posOfFirstSpace > -1 && posOfFirstSpace < posOfGreaterThan) {
             var text = tag.substring(posOfFirstSpace, posOfGreaterThan);
             text = text.trim();
-            attr = this._parse(text);
+            if (text.indexOf('/') < 0) {
+                attr = this._parse(text);
+            }
         }
         return attr;
+    };
+    AttributeParser.prototype.reverse = function (attributes) {
+        var textAttr = '';
+        for (var key in attributes) {
+            if (attributes[key] === null) {
+                textAttr += ' ' + key;
+            }
+            else {
+                textAttr += ' ' + key + '=' + attributes[key];
+            }
+        }
+        return textAttr.trim();
     };
     return AttributeParser;
 }());
@@ -270,9 +284,12 @@ describe('Attribute parser', function () {
     describe('parse()', function () {
         it('should parse attributes', function () {
             var attrParser = new attribute_parser_1.AttributeParser();
-            var tag = "<p class='abc db' aria-label=\"Easy one two\" custom=\"'text'\" val='' required custom-again=true abc-d='1'></p>";
+            var tag = "<p class='abc db' aria-label=\"Easy one two\" custom=\"'text'\" val='' required custom-again=true abc-d='1'>";
+            console.log(tag);
             var output = attrParser.parse(tag);
             console.log(JSON.stringify(output, null, 2));
+            var output2 = attrParser.reverse(output);
+            console.log(output2);
         });
     });
 });
@@ -288,11 +305,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var src_1 = __webpack_require__(6);
 describe('HtmlParser', function () {
     describe('parse()', function () {
-        it('should parse basic tag', function () {
-            var html = "<p class=\"hey you\">hi \"bye\"</p>";
+        fit('should parse basic tag', function () {
+            var html = "<p class='a'>hi <!-- comment --><br></p>";
+            console.log(html);
             var htmlParser = new src_1.HtmlParser();
             var output = htmlParser.parse(html);
             console.log(JSON.stringify(output, null, 2));
+            var htmlOutput = htmlParser.reverse(output);
+            console.log(htmlOutput);
         });
     });
 });
@@ -549,6 +569,39 @@ var HtmlParser = (function () {
         this.state.html = html;
         this._parse(null);
         return this.state.output;
+    };
+    HtmlParser.prototype.reverse = function (htmlNodes) {
+        return this.reverseNodes(0, htmlNodes, '');
+    };
+    HtmlParser.prototype.reverseNodes = function (index, htmlNodes, html) {
+        if (index >= htmlNodes.length) {
+            return html;
+        }
+        var node = htmlNodes[index];
+        if (node.type === constants_1.ELEMENT_TYPES.TEXT) {
+            html += node.data;
+        }
+        else if (node.type === constants_1.ELEMENT_TYPES.COMMENT) {
+            html += '<!--' + node.data + '-->';
+        }
+        else {
+            var attrParser = new attribute_parser_1.AttributeParser();
+            var textAttr = attrParser.reverse(node.attributes);
+            textAttr = (textAttr.length > 0) ? ' ' + textAttr : textAttr;
+            if (node.tagType === constants_1.TAG_TYPES.EMPTY) {
+                html += '<' + node.name + textAttr + ' />';
+            }
+            else {
+                html += '<' + node.name + textAttr + '>';
+                if (node.children && node.children.length > 0) {
+                    var newHtml = this.reverseNodes(0, node.children, '');
+                    html += newHtml;
+                }
+                html += '</' + node.name + '>';
+            }
+        }
+        index++;
+        return this.reverseNodes(index, htmlNodes, html);
     };
     return HtmlParser;
 }());

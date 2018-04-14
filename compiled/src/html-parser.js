@@ -231,6 +231,39 @@ var HtmlParser = (function () {
         this._parse(null);
         return this.state.output;
     };
+    HtmlParser.prototype.reverse = function (htmlNodes) {
+        return this.reverseNodes(0, htmlNodes, '');
+    };
+    HtmlParser.prototype.reverseNodes = function (index, htmlNodes, html) {
+        if (index >= htmlNodes.length) {
+            return html;
+        }
+        var node = htmlNodes[index];
+        if (node.type === constants_1.ELEMENT_TYPES.TEXT) {
+            html += node.data;
+        }
+        else if (node.type === constants_1.ELEMENT_TYPES.COMMENT) {
+            html += '<!--' + node.data + '-->';
+        }
+        else {
+            var attrParser = new attribute_parser_1.AttributeParser();
+            var textAttr = attrParser.reverse(node.attributes);
+            textAttr = (textAttr.length > 0) ? ' ' + textAttr : textAttr;
+            if (node.tagType === constants_1.TAG_TYPES.EMPTY) {
+                html += '<' + node.name + textAttr + ' />';
+            }
+            else {
+                html += '<' + node.name + textAttr + '>';
+                if (node.children && node.children.length > 0) {
+                    var newHtml = this.reverseNodes(0, node.children, '');
+                    html += newHtml;
+                }
+                html += '</' + node.name + '>';
+            }
+        }
+        index++;
+        return this.reverseNodes(index, htmlNodes, html);
+    };
     return HtmlParser;
 }());
 exports.HtmlParser = HtmlParser;

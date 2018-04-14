@@ -8,8 +8,7 @@ const PARSER_MODES = {
 
 export class AttributeParser {
   
-
-
+  // the state when parsing
   private state: any = {
     text: '',
     currentPos: 0,
@@ -19,6 +18,14 @@ export class AttributeParser {
   };
 
 
+  /**
+   * Check if a character is whitespace
+   * 
+   * @private
+   * @param {string} ch 
+   * @returns 
+   * @memberof AttributeParser
+   */
   private isWhitespace(ch: string) {
     var tab = '\u0009';
     var noBreakSpace = '\u00A0';
@@ -30,6 +37,12 @@ export class AttributeParser {
   }
 
 
+  /**
+   * Reset the parser
+   * 
+   * @private
+   * @memberof AttributeParser
+   */
   private reset() {
     this.state = {
       text: '',
@@ -41,6 +54,13 @@ export class AttributeParser {
   }
 
 
+  /**
+   * Get the next character in the text string
+   * 
+   * @private
+   * @returns {string} 
+   * @memberof AttributeParser
+   */
   private getNextChar(): string {
     let ch = null;
     if(this.state.currentPos < this.state.text.length) {
@@ -51,8 +71,14 @@ export class AttributeParser {
   }
 
 
-
-
+  /**
+   * Parse the text of attributes
+   * 
+   * @private
+   * @param {string} text 
+   * @returns {{ [key: string]: any }} 
+   * @memberof AttributeParser
+   */
   private _parse(text: string): { [key: string]: any } {
     let attr = {};
     this.state.text = text;
@@ -75,6 +101,14 @@ export class AttributeParser {
   }
 
 
+  /**
+   * Handle getting the next character when reading the attribute name
+   * 
+   * @private
+   * @param {string} ch 
+   * @param {any} attr 
+   * @memberof AttributeParser
+   */
   private handleReadingAttrName(ch: string, attr) {
     if(ch === '=') {
       // end of the attribute name
@@ -89,6 +123,14 @@ export class AttributeParser {
   }
 
 
+  /**
+   * Handle getting the next character when reading the attribute value
+   * 
+   * @private
+   * @param {string} ch 
+   * @param {any} attr 
+   * @memberof AttributeParser
+   */
   private handleReadingAttrValue(ch: string, attr) {
     if(this.isWhitespace(ch)) {
       let firstCh = this.state.attrValue[0];
@@ -109,9 +151,14 @@ export class AttributeParser {
   }
 
 
-
-
-  parse(tag: string) {
+  /**
+   * Parse a html tag for attributes
+   * 
+   * @param {string} tag 
+   * @returns 
+   * @memberof AttributeParser
+   */
+  public parse(tag: string) {
     this.reset();
     let attr = {};
     let posOfFirstSpace = tag.indexOf(" ");
@@ -120,9 +167,30 @@ export class AttributeParser {
       // we possibiliy have attributes
       let text = tag.substring(posOfFirstSpace, posOfGreaterThan);
       text = text.trim();
-      attr = this._parse(text);
+      if(text.indexOf('/') < 0) {
+        attr = this._parse(text);
+      }
     }
     return attr;
   }
 
+
+  /**
+   * Reverse the output of the parse function back to a string of attributes
+   * 
+   * @param {{ [key: string]: any}} attributes 
+   * @returns {string} 
+   * @memberof AttributeParser
+   */
+  public reverse(attributes: { [key: string]: any}): string {
+    let textAttr = '';
+    for(let key in attributes) {
+      if(attributes[key] === null) {
+        textAttr += ' ' + key;
+      } else {
+        textAttr += ' ' + key + '=' + attributes[key];
+      }
+    }
+    return textAttr.trim();
+  }
 }

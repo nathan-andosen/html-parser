@@ -17,4 +17,6 @@ export declare class HtmlParser {
     private parseScript(currentElement, endTag);
     private _parse(currentElement);
     parse(html: string): iHtmlElement[];
+    reverse(htmlNodes: iHtmlElement[]): any;
+    private reverseNodes(index, htmlNodes, html);
 }
