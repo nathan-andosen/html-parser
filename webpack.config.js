@@ -2,17 +2,17 @@ var webpack = require("webpack");
 var path = require('path');
 var version = require('./package.json').version;
 
-var banner = 'My App v' + version + '\n' +
+var banner = 'Html-Parser v' + version + '\n' +
   '(c) ' + new Date().getFullYear() + ' Nathan Anderson';
 
 module.exports = {
   entry: {
-    "XApp" : "./src/index.ts"
+    "Thenja" : "./src/index.ts"
   },
   output: {
     path: path.join(__dirname, "dist"),
-    filename: "my-class.min.js",
-    library : ["XApp"],
+    filename: "thenja-html-parser.min.js",
+    library : ["Thenja"],
     libraryTarget: 'umd'
   },
   resolve: {
@@ -34,11 +34,11 @@ if (process.env.NODE_ENV === 'production') {
         NODE_ENV: '"production"'
       }
     }),
-    new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: false
-      }
-    }),
+    // new webpack.optimize.UglifyJsPlugin({
+    //   compress: {
+    //     warnings: false
+    //   }
+    // }),
     new webpack.BannerPlugin(banner),
     new webpack.optimize.OccurrenceOrderPlugin()
   ]

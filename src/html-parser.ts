@@ -21,7 +21,7 @@ import { AttributeParser } from './attribute-parser';
   - (DONE) parse style tags
   - (DONE) parse script tags
   - (DONE) parse comment tags
-  - parse attributes
+  - (DONE) parse attributes
   - add callback error handling and done handling
 
 
