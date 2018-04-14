@@ -1,0 +1,5 @@
+src/
+debug/
+dist/
+dev-only/
+compiled/spec

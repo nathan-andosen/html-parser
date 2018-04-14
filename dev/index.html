@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Title here</title>
+  <script src="html-parser.js" type="text/javascript"></script>
+
+  <script type="text/javascript">
+    var htmlTest = "<p><style>body { color: #ff9900; }</style>Hello <div class=\"bold\">WORLD</div> !<!-- Im a comment --></p>";
+    var handler = new Tautologistics.NodeHtmlParser
+    .HtmlBuilder(function (error, dom) {
+    if (error){
+      console.log(error);
+    } else {
+
+    }
+  });
+  var parser = new Tautologistics.NodeHtmlParser.Parser(handler);
+  parser.parseComplete(htmlTest);
+  console.log(JSON.stringify(handler.dom, null, 2));
+  </script>
+</head>
+
+<body>
+  <P>
+    5<a10 >
+    </P>
+    <span>
+      hey hey
+    </span>
+</body>
+</html>

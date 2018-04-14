@@ -1,0 +1,46 @@
+{
+  "name": "@thenja/html-parser",
+  "description": "A forgiving html parser",
+  "main": "compiled/src/index.js",
+  "types": "compiled/src/index.d.ts",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {},
+  "devDependencies": {
+    "@types/jasmine": "2.6.0",
+    "grunt": "1.0.1",
+    "grunt-cli": "1.2.0",
+    "grunt-contrib-watch": "1.0.0",
+    "grunt-exec": "0.4.6",
+    "istanbul-reporter-shield-badge": "1.1.3",
+    "jasmine": "2.8.0",
+    "jasmine-core": "2.8.0",
+    "jasmine-terminal-reporter": "1.0.3",
+    "nyc": "11.2.1",
+    "ts-lint": "4.5.1",
+    "ts-loader": "3.0.3",
+    "typescript": "2.5.3",
+    "webpack": "3.8.1",
+    "yargs": "4.8.0"
+  },
+  "scripts": {
+    "init": "bash ./scripts/init.sh",
+    "dev": "grunt dev",
+    "test": "grunt coverage",
+    "build": "bash ./scripts/build.sh",
+    "coverage": "grunt coverage"
+  },
+  "nyc": {
+    "lines": 80,
+    "statements": 80,
+    "functions": 80,
+    "branches": 80,
+    "include": [
+      "compiled/src/**/*.js"
+    ],
+    "reporter": [
+      "json",
+      "text-summary"
+    ]
+  }
+}

@@ -1,0 +1,37 @@
+"<p>Hello <div class=\"bold\">WORLD</div> !<!-- Im a comment --></p>"
+
+[
+  {
+    "type": "tag",
+    "raw": "p",
+    "name": "p",
+    "children": [
+      {
+        "type": "text",
+        "data": "Hello "
+      },
+      {
+        "type": "tag",
+        "raw": "div class=\"bold\"",
+        "name": "div",
+        "attributes": {
+          "class": "bold"
+        },
+        "children": [
+          {
+            "type": "text",
+            "data": "WORLD"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "data": " !"
+      },
+      {
+        "type": "comment",
+        "data": " Im a comment "
+      }
+    ]
+  }
+]
