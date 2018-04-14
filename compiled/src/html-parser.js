@@ -128,7 +128,7 @@ var HtmlParser = (function () {
             var textNode = this.createTextNode(text);
             this.addNodeElement(textNode, currentElement);
         }
-        var posEndTag = nextText.indexOf('>') + 1;
+        var posEndTag = nextText.indexOf('>', tagResult.pos) + 1;
         var tagText = nextText.substring(tagResult.pos, posEndTag);
         var tagName = tagText.replace("</", "").replace(">", "");
         if (!currentElement) {

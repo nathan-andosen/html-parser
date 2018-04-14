@@ -236,7 +236,7 @@ export class HtmlParser {
       this.addNodeElement(textNode, currentElement);
     }
     // validate the end tag is correct
-    let posEndTag = nextText.indexOf('>') + 1;
+    let posEndTag = nextText.indexOf('>', tagResult.pos) + 1;
     let tagText = nextText.substring(tagResult.pos, posEndTag);
     let tagName = tagText.replace("</", "").replace(">", "");
     if(!currentElement) {
