@@ -235,8 +235,7 @@ export class HtmlParser {
       this.addNodeElement(textNode, currentElement);
     }
     // validate the end tag is correct
-    let posEndTag = nextText.indexOf('>');
-    posEndTag++;
+    let posEndTag = nextText.indexOf('>') + 1;
     let tagText = nextText.substring(tagResult.pos, posEndTag);
     let tagName = tagText.replace("</", "").replace(">", "");
     if(!currentElement) {
@@ -293,8 +292,7 @@ export class HtmlParser {
    */
   private parseTag(currentElement: iHtmlElement) {
     let nextText = this.state.html.substring(this.state.currentPos);
-    let posEndTag = nextText.indexOf('>');
-    posEndTag++;
+    let posEndTag = nextText.indexOf('>') + 1;
     let tagText = nextText.substring(0, posEndTag);
     let tagNode = this.createTagNode(tagText);
     // move to the end of our start tag

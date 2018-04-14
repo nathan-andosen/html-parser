@@ -466,8 +466,7 @@ var HtmlParser = (function () {
             var textNode = this.createTextNode(text);
             this.addNodeElement(textNode, currentElement);
         }
-        var posEndTag = nextText.indexOf('>');
-        posEndTag++;
+        var posEndTag = nextText.indexOf('>') + 1;
         var tagText = nextText.substring(tagResult.pos, posEndTag);
         var tagName = tagText.replace("</", "").replace(">", "");
         if (!currentElement) {
@@ -502,8 +501,7 @@ var HtmlParser = (function () {
     };
     HtmlParser.prototype.parseTag = function (currentElement) {
         var nextText = this.state.html.substring(this.state.currentPos);
-        var posEndTag = nextText.indexOf('>');
-        posEndTag++;
+        var posEndTag = nextText.indexOf('>') + 1;
         var tagText = nextText.substring(0, posEndTag);
         var tagNode = this.createTagNode(tagText);
         this.state.currentPos = this.state.currentPos + posEndTag;
