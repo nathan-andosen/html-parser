@@ -17,7 +17,6 @@
     "url": "https://github.com/nathan-andosen/html-parser"
   },
   "author": "Nathan Anderson",
-  "private": true,
   "dependencies": {},
   "devDependencies": {
     "@types/jasmine": "2.6.0",
