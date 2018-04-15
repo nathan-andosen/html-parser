@@ -5,6 +5,7 @@ var constants_1 = require("./constants");
 var attribute_parser_1 = require("./attribute-parser");
 var HtmlParser = (function () {
     function HtmlParser() {
+        this.errorCb = null;
     }
     HtmlParser.prototype.reset = function () {
         this.state = {
@@ -132,11 +133,17 @@ var HtmlParser = (function () {
         var tagText = nextText.substring(tagResult.pos, posEndTag);
         var tagName = tagText.replace("</", "").replace(">", "");
         if (!currentElement) {
-            throw new Error('No start tag for end tag: ' + tagName);
+            var err = new Error('No start tag for end tag: ' + tagName);
+            if (this.errorCb) {
+                this.errorCb(err);
+            }
         }
         if (currentElement.name.toLowerCase() !== tagName.toLowerCase()) {
-            throw new Error('Start tag (' + currentElement.name + ') and end tag '
+            var err = Error('Start tag (' + currentElement.name + ') and end tag '
                 + '(' + tagName + ') do not match');
+            if (this.errorCb) {
+                this.errorCb(err);
+            }
         }
         this.state.mode = constants_1.MODE_TYPES.TEXT;
         this.state.currentPos = this.state.currentPos + posEndTag;
@@ -152,7 +159,10 @@ var HtmlParser = (function () {
         }
         var posEndCommentTag = nextText.indexOf('-->');
         if (!posEndCommentTag) {
-            throw new Error('Comment does not have an end tag');
+            var err = new Error('Comment does not have an end tag');
+            if (this.errorCb) {
+                this.errorCb(err);
+            }
         }
         var commentText = nextText.substring(tagResult.pos + 4, posEndCommentTag);
         var commentNode = this.createCommentNode(commentText);
@@ -195,8 +205,11 @@ var HtmlParser = (function () {
         var nextText = this.state.html.substring(this.state.currentPos);
         var posOfEndTag = nextText.indexOf(endTag);
         if (posOfEndTag < 0) {
-            throw new Error('Script (' + currentElement.name + ' ) does not have ' +
+            var err = new Error('Script (' + currentElement.name + ' ) does not have ' +
                 'an end tag');
+            if (this.errorCb) {
+                this.errorCb(err);
+            }
         }
         var scriptContent = nextText.substring(0, posOfEndTag);
         var textNode = this.createTextNode(scriptContent);
@@ -224,7 +237,10 @@ var HtmlParser = (function () {
                 break;
         }
     };
-    HtmlParser.prototype.parse = function (html) {
+    HtmlParser.prototype.parse = function (html, cb) {
+        if (cb) {
+            this.errorCb = cb;
+        }
         this.reset();
         this.state.html = html;
         this._parse(null);

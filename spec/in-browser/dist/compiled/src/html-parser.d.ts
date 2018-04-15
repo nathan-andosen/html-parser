@@ -1,6 +1,7 @@
 import { iHtmlElement } from './interfaces';
 export declare class HtmlParser {
     private state;
+    private errorCb;
     private reset();
     private addNodeElement(newNode, currentElement);
     private createTextNode(text);
@@ -16,7 +17,7 @@ export declare class HtmlParser {
     private parseAttributes(tag);
     private parseScript(currentElement, endTag);
     private _parse(currentElement);
-    parse(html: string): iHtmlElement[];
+    parse(html: string, cb?: (err: Error) => void): iHtmlElement[];
     reverse(htmlNodes: iHtmlElement[]): any;
     private reverseNodes(index, htmlNodes, html);
 }

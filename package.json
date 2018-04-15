@@ -1,9 +1,22 @@
 {
   "name": "@thenja/html-parser",
-  "description": "A forgiving html parser",
+  "description": "A simple forgiving html parser",
   "main": "compiled/src/index.js",
   "types": "compiled/src/index.d.ts",
-  "version": "0.0.1",
+  "keywords": [
+    "html parser",
+    "parser",
+    "forgiving"
+  ],
+  "bugs": "https://github.com/nathan-andosen/html-parser/issues",
+  "homepage": "https://github.com/nathan-andosen/html-parser",
+  "version": "1.0.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nathan-andosen/html-parser"
+  },
+  "author": "Nathan Anderson",
   "private": true,
   "dependencies": {},
   "devDependencies": {

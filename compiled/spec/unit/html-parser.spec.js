@@ -28,6 +28,32 @@ describe('HtmlParser', function () {
             var expectedResult = [{ "type": "tag", "tagType": "default", "name": "body", "attributes": {}, "children": [{ "type": "tag", "tagType": "script", "name": "script", "attributes": { "type": "\"javascript/text\"" }, "children": [{ "type": "text", "data": "var a = ( 5 > 2) ? 3 : 3;" }] }] }];
             expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
         });
+        it('should parse style tag', function () {
+            var html = "<body><style>body > p {}</style></body>";
+            var output = htmlParser.parse(html);
+            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "body", "attributes": {}, "children": [{ "type": "tag", "tagType": "style", "name": "style", "attributes": {}, "children": [{ "type": "text", "data": "body > p {}" }] }] }];
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should parse nested tags', function () {
+            var html = "<div><div><p> hi<span> there</span></p></div></div>";
+            var output = htmlParser.parse(html);
+            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "div", "attributes": {}, "children": [{ "type": "tag", "tagType": "default", "name": "div", "attributes": {}, "children": [{ "type": "tag", "tagType": "default", "name": "p", "attributes": {}, "children": [{ "type": "text", "data": " hi" }, { "type": "tag", "tagType": "default", "name": "span", "attributes": {}, "children": [{ "type": "text", "data": " there" }] }] }] }] }];
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should parse tags with attributes', function () {
+            var html = "<div class='one'><input required /></div>";
+            var output = htmlParser.parse(html);
+            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "div", "attributes": { "class": "'one'" }, "children": [{ "type": "tag", "tagType": "empty", "name": "input", "attributes": { "required": null }, "children": [] }] }];
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should pass error for invalid html', function () {
+            var html = "<div><p>hi</div>";
+            var errorCalled = 0;
+            var output = htmlParser.parse(html, function (err) {
+                errorCalled++;
+            });
+            expect(errorCalled).toBeGreaterThan(0);
+        });
         it('should parse tags with capital letters', function () {
             var html = "<SPAN><p>hi</P> there</SPAN>";
             var expectedResult = [{ "type": "tag", "tagType": "default", "name": "SPAN", "attributes": {}, "children": [{ "type": "tag", "tagType": "default", "name": "p", "attributes": {}, "children": [{ "type": "text", "data": "hi" }] }, { "type": "text", "data": " there" }] }];
@@ -51,6 +77,14 @@ describe('HtmlParser', function () {
             var expectedResult = [{ "type": "text", "data": "hi\n" }, { "type": "tag", "tagType": "default", "name": "p", "attributes": { "class": "\"one\"" }, "children": [{ "type": "text", "data": "\n  a paragraph\n" }] }];
             var output = htmlParser.parse(html);
             expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+    });
+    describe('reverse()', function () {
+        it('should reverse output from the parse function back into html', function () {
+            var html = "<div class='one'><p>hi <span>there</span></p><br /></div>";
+            var output = htmlParser.parse(html);
+            var reversedHtml = htmlParser.reverse(output);
+            expect(reversedHtml).toEqual(html);
         });
     });
 });

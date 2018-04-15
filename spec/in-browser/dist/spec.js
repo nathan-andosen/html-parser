@@ -426,11 +426,69 @@ describe('HtmlParser', function () {
             var output = htmlParser.parse(html);
             expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
         });
+        it('should parse script tag', function () {
+            var html = "<body><script type=\"javascript/text\">var a = ( 5 > 2) ? 3 : 3;</script></body>";
+            var output = htmlParser.parse(html);
+            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "body", "attributes": {}, "children": [{ "type": "tag", "tagType": "script", "name": "script", "attributes": { "type": "\"javascript/text\"" }, "children": [{ "type": "text", "data": "var a = ( 5 > 2) ? 3 : 3;" }] }] }];
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should parse style tag', function () {
+            var html = "<body><style>body > p {}</style></body>";
+            var output = htmlParser.parse(html);
+            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "body", "attributes": {}, "children": [{ "type": "tag", "tagType": "style", "name": "style", "attributes": {}, "children": [{ "type": "text", "data": "body > p {}" }] }] }];
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should parse nested tags', function () {
+            var html = "<div><div><p> hi<span> there</span></p></div></div>";
+            var output = htmlParser.parse(html);
+            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "div", "attributes": {}, "children": [{ "type": "tag", "tagType": "default", "name": "div", "attributes": {}, "children": [{ "type": "tag", "tagType": "default", "name": "p", "attributes": {}, "children": [{ "type": "text", "data": " hi" }, { "type": "tag", "tagType": "default", "name": "span", "attributes": {}, "children": [{ "type": "text", "data": " there" }] }] }] }] }];
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should parse tags with attributes', function () {
+            var html = "<div class='one'><input required /></div>";
+            var output = htmlParser.parse(html);
+            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "div", "attributes": { "class": "'one'" }, "children": [{ "type": "tag", "tagType": "empty", "name": "input", "attributes": { "required": null }, "children": [] }] }];
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should pass error for invalid html', function () {
+            var html = "<div><p>hi</div>";
+            var errorCalled = 0;
+            var output = htmlParser.parse(html, function (err) {
+                errorCalled++;
+            });
+            expect(errorCalled).toBeGreaterThan(0);
+        });
+        it('should parse tags with capital letters', function () {
+            var html = "<SPAN><p>hi</P> there</SPAN>";
+            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "SPAN", "attributes": {}, "children": [{ "type": "tag", "tagType": "default", "name": "p", "attributes": {}, "children": [{ "type": "text", "data": "hi" }] }, { "type": "text", "data": " there" }] }];
+            var output = htmlParser.parse(html);
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should parse custom tags', function () {
+            var html = "<cust-tag>hello</cust-tag>";
+            var output = htmlParser.parse(html);
+            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "cust-tag", "attributes": {}, "children": [{ "type": "text", "data": "hello" }] }];
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should parse text content that has less than or greater than symbols', function () {
+            var html = "<p> 5 > 3 and 2 < 4 </p>";
+            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "p", "attributes": {}, "children": [{ "type": "text", "data": " 5 > 3 and 2 < 4 " }] }];
+            var output = htmlParser.parse(html);
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
         it('should parse tag split over lines', function () {
             var html = "hi\n<p\n  class=\"one\">\n  a paragraph\n</p>";
             var expectedResult = [{ "type": "text", "data": "hi\n" }, { "type": "tag", "tagType": "default", "name": "p", "attributes": { "class": "\"one\"" }, "children": [{ "type": "text", "data": "\n  a paragraph\n" }] }];
             var output = htmlParser.parse(html);
             expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+    });
+    describe('reverse()', function () {
+        it('should reverse output from the parse function back into html', function () {
+            var html = "<div class='one'><p>hi <span>there</span></p><br /></div>";
+            var output = htmlParser.parse(html);
+            var reversedHtml = htmlParser.reverse(output);
+            expect(reversedHtml).toEqual(html);
         });
     });
 });
@@ -462,6 +520,7 @@ var constants_1 = __webpack_require__(1);
 var attribute_parser_1 = __webpack_require__(0);
 var HtmlParser = (function () {
     function HtmlParser() {
+        this.errorCb = null;
     }
     HtmlParser.prototype.reset = function () {
         this.state = {
@@ -585,15 +644,21 @@ var HtmlParser = (function () {
             var textNode = this.createTextNode(text);
             this.addNodeElement(textNode, currentElement);
         }
-        var posEndTag = nextText.indexOf('>') + 1;
+        var posEndTag = nextText.indexOf('>', tagResult.pos) + 1;
         var tagText = nextText.substring(tagResult.pos, posEndTag);
         var tagName = tagText.replace("</", "").replace(">", "");
         if (!currentElement) {
-            throw new Error('No start tag for end tag: ' + tagName);
+            var err = new Error('No start tag for end tag: ' + tagName);
+            if (this.errorCb) {
+                this.errorCb(err);
+            }
         }
         if (currentElement.name.toLowerCase() !== tagName.toLowerCase()) {
-            throw new Error('Start tag (' + currentElement.name + ') and end tag '
+            var err = Error('Start tag (' + currentElement.name + ') and end tag '
                 + '(' + tagName + ') do not match');
+            if (this.errorCb) {
+                this.errorCb(err);
+            }
         }
         this.state.mode = constants_1.MODE_TYPES.TEXT;
         this.state.currentPos = this.state.currentPos + posEndTag;
@@ -609,7 +674,10 @@ var HtmlParser = (function () {
         }
         var posEndCommentTag = nextText.indexOf('-->');
         if (!posEndCommentTag) {
-            throw new Error('Comment does not have an end tag');
+            var err = new Error('Comment does not have an end tag');
+            if (this.errorCb) {
+                this.errorCb(err);
+            }
         }
         var commentText = nextText.substring(tagResult.pos + 4, posEndCommentTag);
         var commentNode = this.createCommentNode(commentText);
@@ -652,8 +720,11 @@ var HtmlParser = (function () {
         var nextText = this.state.html.substring(this.state.currentPos);
         var posOfEndTag = nextText.indexOf(endTag);
         if (posOfEndTag < 0) {
-            throw new Error('Script (' + currentElement.name + ' ) does not have ' +
+            var err = new Error('Script (' + currentElement.name + ' ) does not have ' +
                 'an end tag');
+            if (this.errorCb) {
+                this.errorCb(err);
+            }
         }
         var scriptContent = nextText.substring(0, posOfEndTag);
         var textNode = this.createTextNode(scriptContent);
@@ -681,7 +752,10 @@ var HtmlParser = (function () {
                 break;
         }
     };
-    HtmlParser.prototype.parse = function (html) {
+    HtmlParser.prototype.parse = function (html, cb) {
+        if (cb) {
+            this.errorCb = cb;
+        }
         this.reset();
         this.state.html = html;
         this._parse(null);

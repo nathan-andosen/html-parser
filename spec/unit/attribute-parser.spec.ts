@@ -66,8 +66,6 @@ describe('Attribute parser', () => {
       let output = attrParser.parse(tag);
       expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
     });
-
-    // TODO: invalid attribute
   });
 
 

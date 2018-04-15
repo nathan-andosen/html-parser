@@ -5,7 +5,12 @@ const PARSER_MODES = {
   READING_ATTR_VALUE: 'reading-attr-value'
 };
 
-
+/**
+ * Parse attributes in a html tag
+ * 
+ * @export
+ * @class AttributeParser
+ */
 export class AttributeParser {
   
   // the state when parsing

@@ -19,6 +19,7 @@ export class HtmlParser {
 
   // the state when parsing
   private state: iState;
+  private errorCb: (err: Error) => void = null;
   
 
   /**
@@ -240,11 +241,13 @@ export class HtmlParser {
     let tagText = nextText.substring(tagResult.pos, posEndTag);
     let tagName = tagText.replace("</", "").replace(">", "");
     if(!currentElement) {
-      throw new Error('No start tag for end tag: ' + tagName);
+      let err = new Error('No start tag for end tag: ' + tagName);
+      if(this.errorCb) { this.errorCb(err); }
     }
     if(currentElement.name.toLowerCase() !== tagName.toLowerCase()) {
-      throw new Error('Start tag (' + currentElement.name + ') and end tag '
+      let err = Error('Start tag (' + currentElement.name + ') and end tag '
       + '(' + tagName + ') do not match');
+      if(this.errorCb) { this.errorCb(err); }
     }
     this.state.mode = MODE_TYPES.TEXT;
     this.state.currentPos = this.state.currentPos + posEndTag;
@@ -273,7 +276,8 @@ export class HtmlParser {
     }
     let posEndCommentTag = nextText.indexOf('-->');
     if(!posEndCommentTag) {
-      throw new Error('Comment does not have an end tag');
+      let err = new Error('Comment does not have an end tag');
+      if(this.errorCb) { this.errorCb(err); }
     }
     let commentText = nextText.substring(tagResult.pos + 4, posEndCommentTag);
     let commentNode = this.createCommentNode(commentText);
@@ -344,8 +348,9 @@ export class HtmlParser {
     let nextText = this.state.html.substring(this.state.currentPos);
     let posOfEndTag = nextText.indexOf(endTag);
     if(posOfEndTag < 0) {
-      throw new Error('Script (' + currentElement.name + ' ) does not have ' +
+      let err = new Error('Script (' + currentElement.name + ' ) does not have ' +
       'an end tag');
+      if(this.errorCb) { this.errorCb(err); }
     }
     let scriptContent = nextText.substring(0, posOfEndTag);
     let textNode = this.createTextNode(scriptContent);
@@ -388,10 +393,12 @@ export class HtmlParser {
    * Parse a html string
    * 
    * @param {string} html 
+   * @param {Function} cb
    * @returns {iHtmlElement []} 
    * @memberof HtmlParser
    */
-  public parse(html: string):iHtmlElement [] {
+  public parse(html: string, cb?: (err: Error) => void):iHtmlElement [] {
+    if(cb) { this.errorCb = cb; }
     this.reset();
     this.state.html = html;
     this._parse(null);

@@ -14,7 +14,6 @@ describe('HtmlParser', () => {
    * parse()
    */
   describe('parse()', () => {
-    
     // plain text
     it('should parse plain text', () => {
       let html = "plain text ";
@@ -47,13 +46,39 @@ describe('HtmlParser', () => {
       expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
     });
 
-    // TODO: style tag
+    // style tag
+    it('should parse style tag', () => {
+      let html = "<body><style>body > p {}</style></body>";
+      let output = htmlParser.parse(html);
+      let expectedResult = [{"type":"tag","tagType":"default","name":"body","attributes":{},"children":[{"type":"tag","tagType":"style","name":"style","attributes":{},"children":[{"type":"text","data":"body > p {}"}]}]}];
+      expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+    });
 
-    // TODO: nested tags
+    // nested tags
+    it('should parse nested tags', () => {
+      let html = "<div><div><p> hi<span> there</span></p></div></div>";
+      let output = htmlParser.parse(html);
+      let expectedResult = [{"type":"tag","tagType":"default","name":"div","attributes":{},"children":[{"type":"tag","tagType":"default","name":"div","attributes":{},"children":[{"type":"tag","tagType":"default","name":"p","attributes":{},"children":[{"type":"text","data":" hi"},{"type":"tag","tagType":"default","name":"span","attributes":{},"children":[{"type":"text","data":" there"}]}]}]}]}];
+      expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+    });
 
-    // TODO: tags with attributes
+    // tags with attributes
+    it('should parse tags with attributes', () => {
+      let html = "<div class='one'><input required /></div>";
+      let output = htmlParser.parse(html);
+      let expectedResult = [{"type":"tag","tagType":"default","name":"div","attributes":{"class":"'one'"},"children":[{"type":"tag","tagType":"empty","name":"input","attributes":{"required":null},"children":[]}]}];
+      expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+    });
 
-    // TODO: invliad html
+    // invliad html
+    it('should pass error for invalid html', () => {
+      let html = "<div><p>hi</div>";
+      let errorCalled = 0;
+      let output = htmlParser.parse(html, (err) => {
+        errorCalled++;
+      });
+      expect(errorCalled).toBeGreaterThan(0);
+    });
 
     // tags in capital letter
     it('should parse tags with capital letters', () => {
@@ -89,6 +114,21 @@ describe('HtmlParser', () => {
       let expectedResult = [{"type":"text","data":"hi\n"},{"type":"tag","tagType":"default","name":"p","attributes":{"class":"\"one\""},"children":[{"type":"text","data":"\n  a paragraph\n"}]}];
       let output = htmlParser.parse(html);
       expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+    });
+  });
+
+
+
+
+  /**
+   * reverse()
+   */
+  describe('reverse()', () => {
+    it('should reverse output from the parse function back into html', () => {
+      let html = "<div class='one'><p>hi <span>there</span></p><br /></div>";
+      let output = htmlParser.parse(html);
+      let reversedHtml = htmlParser.reverse(output);
+      expect(reversedHtml).toEqual(html);
     });
   });
 });

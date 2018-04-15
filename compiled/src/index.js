@@ -1,8 +1,8 @@
 "use strict";
-function __export(m) {
-    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-}
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(require("./constants"));
-__export(require("./html-parser"));
+var constants_1 = require("./constants");
+exports.ELEMENT_TYPES = constants_1.ELEMENT_TYPES;
+exports.TAG_TYPES = constants_1.TAG_TYPES;
+var html_parser_1 = require("./html-parser");
+exports.HtmlParser = html_parser_1.HtmlParser;
 //# sourceMappingURL=index.js.map

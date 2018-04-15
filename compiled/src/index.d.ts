@@ -1,3 +1,3 @@
-export * from './constants';
-export * from './interfaces';
-export * from './html-parser';
+export { ELEMENT_TYPES, TAG_TYPES } from './constants';
+export { iHtmlElement } from './interfaces';
+export { HtmlParser } from './html-parser';
