@@ -322,6 +322,30 @@ export class HtmlParser {
   }
 
 
+  // text will look like: <span class="d>f">5 > 4</span>
+  // we are looking for the closing tag, the > symbol, we want the 
+  // position of the end tag so we can extract the start tag: <span class="d>f">
+  // you cant have the same quote inside an attribute, for example:
+  // <span class="there\"s"></span> = NOT VALID
+  // <span class"there's"></span> = VALID
+  private findPositionOfClosingTag(text: string) {
+    // rules
+    // get the first > that is not in a quote '' or ""
+    // this will be your end tag
+
+    let posOfFirstSpace = text.indexOf(" "); // step forward past the <span
+    let pos = posOfFirstSpace + 1;
+    let quoteType = 0;
+    let insideQuote = false;
+    
+
+    while(true) {
+      
+      pos++;
+    }
+  }
+
+
   /**
    * Parse for attributes in a html tag
    * 

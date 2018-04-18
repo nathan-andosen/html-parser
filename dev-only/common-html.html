@@ -49,3 +49,29 @@ Empty tags like: <br /> or <br>
 <p>5<10></p>
 <p>abc < bef</p>
 <p>5<a10 ></p> <!-- NOT VALID -->
+
+<img alt='5>6' custom='d<f' />
+<span class=d>f>hi</span> = f>hi
+<span class=d>f>5 > 4</span> = f>5 > 4
+<span class="d>f">5 > 4</span> = 5 > 4
+<img alt='4>6'></img> <!-- NOT VALID -->
+<img alt='4>6'><p>hi</p>
+<img alt='4>6'/>
+<img alt='4>\'6'/>
+<span class="hey>hi</span> <!-- NOT VALID -->
+<img alt=4>6/>
+<span class=d>f> 5 > 
+  10 
+</span>
+
+
+<img src="d" alt=5>10>
+  a
+  <p>f</p>
+
+<p>hi <span>bye</span></p>
+
+always search for the next start or end tag, work back from there, example:
+<p>hi</p> = next tag is a closing tag (</p>) work back from there and find the >
+
+<p> 5 > 10 </p> = this will break the logic above
