@@ -105,6 +105,19 @@ describe('HtmlParser', () => {
     });
 
 
+    // TODO: fix parser to handle this
+    it('should handle greater than symbol in attribute', () => {
+      let html = "<img alt='5>6' custom='d<f' /><span class=d>f>hi</span>";
+      let output = htmlParser.parse(html);
+      console.log(JSON.stringify(output));
+    });
+
+    // TODO: fix parser to handle this
+    it('should handle quotes in attributes', () => {
+      let html = "<p custom='This \' s'><span tag=\"Hi \"hey\" bye\"></span></p>";
+    });
+
+
     it('should parse tag split over lines', () => {
       let html = `hi
 <p

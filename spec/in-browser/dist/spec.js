@@ -471,7 +471,7 @@ describe('HtmlParser', function () {
             expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
         });
         it('should parse text content that has less than or greater than symbols', function () {
-            var html = "<p> 5 > 3 and 2 < 4 </p>";
+            var html = "<p alt='d>f'> 5 > 3 and 2 < 4 </p>";
             var expectedResult = [{ "type": "tag", "tagType": "default", "name": "p", "attributes": {}, "children": [{ "type": "text", "data": " 5 > 3 and 2 < 4 " }] }];
             var output = htmlParser.parse(html);
             expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
@@ -500,12 +500,12 @@ describe('HtmlParser', function () {
 
 "use strict";
 
-function __export(m) {
-    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-}
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(1));
-__export(__webpack_require__(8));
+var constants_1 = __webpack_require__(1);
+exports.ELEMENT_TYPES = constants_1.ELEMENT_TYPES;
+exports.TAG_TYPES = constants_1.TAG_TYPES;
+var html_parser_1 = __webpack_require__(8);
+exports.HtmlParser = html_parser_1.HtmlParser;
 
 
 /***/ }),
