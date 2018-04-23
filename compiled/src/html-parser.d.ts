@@ -14,6 +14,7 @@ export declare class HtmlParser {
     private handleEndTagInText(tagResult, nextText, currentElement);
     private handleCommentInText(tagResult, nextText, currentElement);
     private parseTag(currentElement);
+    private findPositionOfClosingTag(text);
     private parseAttributes(tag);
     private parseScript(currentElement, endTag);
     private _parse(currentElement);

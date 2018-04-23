@@ -104,17 +104,20 @@ describe('HtmlParser', () => {
       expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
     });
 
-
-    // TODO: fix parser to handle this
+    // handle greater or less than symbols in attribute values
     it('should handle greater than symbol in attribute', () => {
       let html = "<img alt='5>6' custom='d<f' /><span class=d>f>hi</span>";
       let output = htmlParser.parse(html);
-      console.log(JSON.stringify(output));
+      let expectedResult = [{"type":"tag","tagType":"empty","name":"img","attributes":{"alt":"'5>6'","custom":"'d<f'"},"children":[]},{"type":"tag","tagType":"default","name":"span","attributes":{"class":"d"},"children":[{"type":"text","data":"f>hi"}]}];
+      expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
     });
 
     // TODO: fix parser to handle this
     it('should handle quotes in attributes', () => {
-      let html = "<p custom='This \' s'><span tag=\"Hi \"hey\" bye\"></span></p>";
+      let html = "<p custom=\"This's there ' s\"><span tag='\"hi there\"'></span></p>";
+      let output = htmlParser.parse(html);
+      let expectedResult = [{"type":"tag","tagType":"default","name":"p","attributes":{"custom":"\"This's there ' s\""},"children":[{"type":"tag","tagType":"default","name":"span","attributes":{"tag":"'\"hi there\"'"},"children":[]}]}];
+      expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
     });
 
 
@@ -128,6 +131,8 @@ describe('HtmlParser', () => {
       let output = htmlParser.parse(html);
       expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
     });
+
+    
   });
 
 

@@ -3,7 +3,8 @@ import {
   ELEMENT_TYPES,
   EMPTY_TAGS,
   MODE_TYPES,
-  TAG_TYPES 
+  TAG_TYPES,
+  QUOTE_TYPES
 } from './constants';
 import { iHtmlElement, iSearchTagResult, iState } from './interfaces';
 import { AttributeParser } from './attribute-parser';
@@ -297,7 +298,7 @@ export class HtmlParser {
    */
   private parseTag(currentElement: iHtmlElement) {
     let nextText = this.state.html.substring(this.state.currentPos);
-    let posEndTag = nextText.indexOf('>') + 1;
+    let posEndTag = this.findPositionOfClosingTag(nextText) + 1;
     let tagText = nextText.substring(0, posEndTag);
     let tagNode = this.createTagNode(tagText);
     // move to the end of our start tag
@@ -322,27 +323,48 @@ export class HtmlParser {
   }
 
 
-  // text will look like: <span class="d>f">5 > 4</span>
-  // we are looking for the closing tag, the > symbol, we want the 
-  // position of the end tag so we can extract the start tag: <span class="d>f">
-  // you cant have the same quote inside an attribute, for example:
-  // <span class="there\"s"></span> = NOT VALID
-  // <span class"there's"></span> = VALID
+  /**
+   * Find the position of the greater than symbol for a html tag element. 
+   * 
+   * @private
+   * @param {string} text 
+   * @returns 
+   * @memberof HtmlParser
+   */
   private findPositionOfClosingTag(text: string) {
-    // rules
-    // get the first > that is not in a quote '' or ""
-    // this will be your end tag
-
-    let posOfFirstSpace = text.indexOf(" "); // step forward past the <span
-    let pos = posOfFirstSpace + 1;
-    let quoteType = 0;
+    let posOfFirstSpace = text.indexOf(" ");
+    let pos = (posOfFirstSpace > -1) ? posOfFirstSpace + 1 : 0;
+    let posOfGreaterThan = text.indexOf(">");
+    if(posOfGreaterThan < pos) {
+      return posOfGreaterThan;
+    }
+    let quoteType = null;
     let insideQuote = false;
-    
-
     while(true) {
-      
+      let ch = (pos < text.length) ? text[pos] : null;
+      if(ch === '>' && !insideQuote) {
+        return pos;
+      } else if(ch === "'") {
+        if(insideQuote && quoteType === QUOTE_TYPES.SINGLE) {
+          insideQuote = false;
+        } else if(!insideQuote) {
+          insideQuote = true;
+          quoteType = QUOTE_TYPES.SINGLE;
+        }
+      } else if(ch === '"') {
+        if(insideQuote && quoteType === QUOTE_TYPES.DOUBLE) {
+          insideQuote = false;
+        } else if(!insideQuote) {
+          insideQuote = true;
+          quoteType = QUOTE_TYPES.DOUBLE;
+        }
+      } else if(ch === null) {
+        // if we get here, the html must be really bad
+        break;
+      }
       pos++;
     }
+    return text.length - 1;
   }
 
 

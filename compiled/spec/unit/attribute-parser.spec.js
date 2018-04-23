@@ -52,6 +52,12 @@ describe('Attribute parser', function () {
             var output = attrParser.parse(tag);
             expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
         });
+        it('should parse attributes with greater than symbol in attribute text', function () {
+            var tag = "<img alt='5>6' custom='d<f' />";
+            var output = attrParser.parse(tag);
+            var expectedResult = { "alt": "'5>6'", "custom": "'d<f'" };
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
     });
     describe('reverse()', function () {
         it('should reverse attributes object returned from parse function', function () {

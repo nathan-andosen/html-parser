@@ -173,7 +173,7 @@ var HtmlParser = (function () {
     };
     HtmlParser.prototype.parseTag = function (currentElement) {
         var nextText = this.state.html.substring(this.state.currentPos);
-        var posEndTag = nextText.indexOf('>') + 1;
+        var posEndTag = this.findPositionOfClosingTag(nextText) + 1;
         var tagText = nextText.substring(0, posEndTag);
         var tagNode = this.createTagNode(tagText);
         this.state.currentPos = this.state.currentPos + posEndTag;
@@ -196,6 +196,45 @@ var HtmlParser = (function () {
             tagNode.parentElement = currentElement;
             this._parse(tagNode);
         }
+    };
+    HtmlParser.prototype.findPositionOfClosingTag = function (text) {
+        var posOfFirstSpace = text.indexOf(" ");
+        var pos = (posOfFirstSpace > -1) ? posOfFirstSpace + 1 : 0;
+        var posOfGreaterThan = text.indexOf(">");
+        if (posOfGreaterThan < pos) {
+            return posOfGreaterThan;
+        }
+        var quoteType = null;
+        var insideQuote = false;
+        while (true) {
+            var ch = (pos < text.length) ? text[pos] : null;
+            if (ch === '>' && !insideQuote) {
+                return pos;
+            }
+            else if (ch === "'") {
+                if (insideQuote && quoteType === constants_1.QUOTE_TYPES.SINGLE) {
+                    insideQuote = false;
+                }
+                else if (!insideQuote) {
+                    insideQuote = true;
+                    quoteType = constants_1.QUOTE_TYPES.SINGLE;
+                }
+            }
+            else if (ch === '"') {
+                if (insideQuote && quoteType === constants_1.QUOTE_TYPES.DOUBLE) {
+                    insideQuote = false;
+                }
+                else if (!insideQuote) {
+                    insideQuote = true;
+                    quoteType = constants_1.QUOTE_TYPES.DOUBLE;
+                }
+            }
+            else if (ch === null) {
+                break;
+            }
+            pos++;
+        }
+        return text.length - 1;
     };
     HtmlParser.prototype.parseAttributes = function (tag) {
         var attrParser = new attribute_parser_1.AttributeParser();

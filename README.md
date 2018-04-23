@@ -1,4 +1,4 @@
-![Test Coverage-shield-badge-1](https://img.shields.io/badge/Test%20Coverage-96.06%25-brightgreen.svg)
+![Test Coverage-shield-badge-1](https://img.shields.io/badge/Test%20Coverage-95.78%25-brightgreen.svg)
 
 # Html-Parser
 
@@ -13,7 +13,7 @@ back into HTML
 
 ### Not supported
 
-* CDATA in html is not supported, if requested, it can be added
+* CDATA in html is not supported
 
 # How to use
 
@@ -118,3 +118,20 @@ _/spec/in-browser/SpecRunner.html_.
 ## License
 
 MIT © [Nathan Anderson](https://github.com/nathan-andosen)
+
+# ToDo
+
+1. Add in a clean() function. This function will have options to:
+
+* remove empty tags
+* remove text nodes that are just whitespace, tabs, new lines and so on
+
+2. Add in a flattenText() function. This will flatten many nested text nodes into one text node.
+
+```html
+<p>My name is <strong>Nathan</strong></p>
+Flattened to:
+<p>My name is Nathan</p>
+```
+
+3. Add in event callback functions to the parse() and reverse() functions. For example, every time a node element is added (such as a div tag), the event function is fired with the node that is about to be injected into the output.

@@ -34,4 +34,8 @@ exports.TAG_TYPES = {
     STYLE: 'style',
     COMMENT: 'comment'
 };
+exports.QUOTE_TYPES = {
+    SINGLE: 1,
+    DOUBLE: 2
+};
 //# sourceMappingURL=constants.js.map

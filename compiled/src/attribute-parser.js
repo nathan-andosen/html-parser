@@ -99,7 +99,7 @@ var AttributeParser = (function () {
         this.reset();
         var attr = {};
         var posOfFirstSpace = tag.indexOf(" ");
-        var posOfGreaterThan = tag.indexOf(">");
+        var posOfGreaterThan = tag.lastIndexOf(">");
         if (posOfFirstSpace > -1 && posOfFirstSpace < posOfGreaterThan) {
             var text = tag.substring(posOfFirstSpace, posOfGreaterThan);
             text = text.trim();

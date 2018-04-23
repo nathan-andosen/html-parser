@@ -172,7 +172,7 @@ export class AttributeParser {
     this.reset();
     let attr = {};
     let posOfFirstSpace = tag.indexOf(" ");
-    let posOfGreaterThan = tag.indexOf(">");
+    let posOfGreaterThan = tag.lastIndexOf(">");
     if(posOfFirstSpace > -1 && posOfFirstSpace < posOfGreaterThan) {
       // we possibiliy have attributes
       let text = tag.substring(posOfFirstSpace, posOfGreaterThan);

@@ -35,3 +35,8 @@ export const TAG_TYPES = {
   STYLE: 'style',
   COMMENT: 'comment'
 };
+
+export const QUOTE_TYPES = {
+  SINGLE: 1,
+  DOUBLE: 2
+};

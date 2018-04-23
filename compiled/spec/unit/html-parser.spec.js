@@ -75,10 +75,14 @@ describe('HtmlParser', function () {
         it('should handle greater than symbol in attribute', function () {
             var html = "<img alt='5>6' custom='d<f' /><span class=d>f>hi</span>";
             var output = htmlParser.parse(html);
-            console.log(JSON.stringify(output));
+            var expectedResult = [{ "type": "tag", "tagType": "empty", "name": "img", "attributes": { "alt": "'5>6'", "custom": "'d<f'" }, "children": [] }, { "type": "tag", "tagType": "default", "name": "span", "attributes": { "class": "d" }, "children": [{ "type": "text", "data": "f>hi" }] }];
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
         });
         it('should handle quotes in attributes', function () {
-            var html = "<p custom='This \' s'><span tag=\"Hi \"hey\" bye\"></span></p>";
+            var html = "<p custom=\"This's there ' s\"><span tag='\"hi there\"'></span></p>";
+            var output = htmlParser.parse(html);
+            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "p", "attributes": { "custom": "\"This's there ' s\"" }, "children": [{ "type": "tag", "tagType": "default", "name": "span", "attributes": { "tag": "'\"hi there\"'" }, "children": [] }] }];
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
         });
         it('should parse tag split over lines', function () {
             var html = "hi\n<p\n  class=\"one\">\n  a paragraph\n</p>";

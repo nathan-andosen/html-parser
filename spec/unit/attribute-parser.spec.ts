@@ -66,6 +66,13 @@ describe('Attribute parser', () => {
       let output = attrParser.parse(tag);
       expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
     });
+
+    it('should parse attributes with greater than symbol in attribute text', () => {
+      let tag = "<img alt='5>6' custom='d<f' />";
+      let output = attrParser.parse(tag);
+      let expectedResult = {"alt":"'5>6'","custom":"'d<f'"};
+      expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+    });
   });
 
 
