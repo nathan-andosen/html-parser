@@ -132,7 +132,15 @@ describe('HtmlParser', () => {
       expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
     });
 
-    
+
+    it('should fire event each time a node is added', () => {
+      let html = "<p class='one'>My <span>name is <strong>Nathan</strong></span></p>";
+      let cnt = 0;
+      let output = htmlParser.parse(html, null, (node, parentNode) => {
+        cnt++;
+      });
+      expect(cnt).toEqual(6);
+    });
   });
 
 
@@ -147,6 +155,17 @@ describe('HtmlParser', () => {
       let output = htmlParser.parse(html);
       let reversedHtml = htmlParser.reverse(output);
       expect(reversedHtml).toEqual(html);
+    });
+
+    it('should fire event each time a node is stringified', () => {
+      let html = "<p class='one'>My <span>name is <strong>Nathan</strong></span></p>";
+      let output = htmlParser.parse(html);
+      let newHtml = htmlParser.reverse(output, (node) => {
+        if(node.name === 'p') {
+          node.attributes['class'] = "'onne'";
+        }
+      });
+      expect(newHtml).toEqual("<p class='onne'>My <span>name is <strong>Nathan</strong></span></p>");
     });
   });
 });

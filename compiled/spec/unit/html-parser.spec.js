@@ -90,6 +90,14 @@ describe('HtmlParser', function () {
             var output = htmlParser.parse(html);
             expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
         });
+        it('should fire event each time a node is added', function () {
+            var html = "<p class='one'>My <span>name is <strong>Nathan</strong></span></p>";
+            var cnt = 0;
+            var output = htmlParser.parse(html, null, function (node, parentNode) {
+                cnt++;
+            });
+            expect(cnt).toEqual(6);
+        });
     });
     describe('reverse()', function () {
         it('should reverse output from the parse function back into html', function () {
@@ -97,6 +105,16 @@ describe('HtmlParser', function () {
             var output = htmlParser.parse(html);
             var reversedHtml = htmlParser.reverse(output);
             expect(reversedHtml).toEqual(html);
+        });
+        it('should fire event each time a node is stringified', function () {
+            var html = "<p class='one'>My <span>name is <strong>Nathan</strong></span></p>";
+            var output = htmlParser.parse(html);
+            var newHtml = htmlParser.reverse(output, function (node) {
+                if (node.name === 'p') {
+                    node.attributes['class'] = "'onne'";
+                }
+            });
+            expect(newHtml).toEqual("<p class='onne'>My <span>name is <strong>Nathan</strong></span></p>");
         });
     });
 });

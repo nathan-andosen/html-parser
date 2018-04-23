@@ -6,6 +6,8 @@ var attribute_parser_1 = require("./attribute-parser");
 var HtmlParser = (function () {
     function HtmlParser() {
         this.errorCb = null;
+        this.addNodeCb = null;
+        this.stringifyNodeCb = null;
     }
     HtmlParser.prototype.reset = function () {
         this.state = {
@@ -16,6 +18,9 @@ var HtmlParser = (function () {
         };
     };
     HtmlParser.prototype.addNodeElement = function (newNode, currentElement) {
+        if (this.addNodeCb) {
+            this.addNodeCb(newNode, currentElement);
+        }
         if (currentElement) {
             if (!currentElement.children) {
                 currentElement.children = [];
@@ -276,16 +281,16 @@ var HtmlParser = (function () {
                 break;
         }
     };
-    HtmlParser.prototype.parse = function (html, cb) {
-        if (cb) {
-            this.errorCb = cb;
-        }
+    HtmlParser.prototype.parse = function (html, errorCb, addNodeCb) {
+        this.errorCb = (errorCb) ? errorCb : null;
+        this.addNodeCb = (addNodeCb) ? addNodeCb : null;
         this.reset();
         this.state.html = html;
         this._parse(null);
         return this.state.output;
     };
-    HtmlParser.prototype.reverse = function (htmlNodes) {
+    HtmlParser.prototype.reverse = function (htmlNodes, stringifyNodeCb) {
+        this.stringifyNodeCb = (stringifyNodeCb) ? stringifyNodeCb : null;
         return this.reverseNodes(0, htmlNodes, '');
     };
     HtmlParser.prototype.reverseNodes = function (index, htmlNodes, html) {
@@ -293,6 +298,9 @@ var HtmlParser = (function () {
             return html;
         }
         var node = htmlNodes[index];
+        if (this.stringifyNodeCb) {
+            this.stringifyNodeCb(node);
+        }
         if (node.type === constants_1.ELEMENT_TYPES.TEXT) {
             html += node.data;
         }

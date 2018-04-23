@@ -21,6 +21,9 @@ export class HtmlParser {
   // the state when parsing
   private state: iState;
   private errorCb: (err: Error) => void = null;
+  private addNodeCb: (nodeBeingAdded: iHtmlElement, 
+    parentElement: iHtmlElement) => void = null;
+  private stringifyNodeCb: (node: iHtmlElement) => void = null;
   
 
   /**
@@ -48,6 +51,9 @@ export class HtmlParser {
    * @memberof HtmlParser
    */
   private addNodeElement(newNode: iHtmlElement, currentElement: iHtmlElement) {
+    if(this.addNodeCb) {
+      this.addNodeCb(newNode, currentElement);
+    }
     if(currentElement) {
       if(!currentElement.children) { currentElement.children = []; }
       currentElement.children.push(newNode);
@@ -443,8 +449,11 @@ export class HtmlParser {
    * @returns {iHtmlElement []} 
    * @memberof HtmlParser
    */
-  public parse(html: string, cb?: (err: Error) => void):iHtmlElement [] {
-    if(cb) { this.errorCb = cb; }
+  public parse(html: string, errorCb?: (err: Error) => void,
+  addNodeCb?: (nodeBeingAdded: iHtmlElement, parentElement: iHtmlElement) => void)
+  : iHtmlElement [] {
+    this.errorCb = (errorCb) ? errorCb : null;
+    this.addNodeCb = (addNodeCb) ? addNodeCb : null;
     this.reset();
     this.state.html = html;
     this._parse(null);
@@ -459,7 +468,9 @@ export class HtmlParser {
    * @returns {string} 
    * @memberof HtmlParser
    */
-  public reverse(htmlNodes: iHtmlElement[]) {
+  public reverse(htmlNodes: iHtmlElement[], 
+  stringifyNodeCb?: (node: iHtmlElement) => void): string {
+    this.stringifyNodeCb = (stringifyNodeCb) ? stringifyNodeCb : null;
     return this.reverseNodes(0, htmlNodes, '');
   }
 
@@ -479,6 +490,7 @@ export class HtmlParser {
       return html;
     }
     let node = htmlNodes[index];
+    if(this.stringifyNodeCb) { this.stringifyNodeCb(node); }
     if(node.type === ELEMENT_TYPES.TEXT) {
       html += node.data;
     } else if(node.type === ELEMENT_TYPES.COMMENT) {

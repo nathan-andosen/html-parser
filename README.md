@@ -1,4 +1,4 @@
-![Test Coverage-shield-badge-1](https://img.shields.io/badge/Test%20Coverage-95.78%25-brightgreen.svg)
+![Test Coverage-shield-badge-1](https://img.shields.io/badge/Test%20Coverage-95.87%25-brightgreen.svg)
 
 # Html-Parser
 
@@ -88,6 +88,34 @@ let output = htmlParser.parse(html, (err) => {
 });
 ```
 
+### Listen for nodes being added when parsing
+
+```javascript
+// In this example we will replace .jpg extensions with .png
+let html = "<div><img src='my-picture.jpg' /></div>";
+let output = htmlParser.parse(html, null, (node, parentNode) => {
+  if(node.name === 'img' && node.attributes && node.attributes.src) {
+    node.attributes.src = node.attributes.src.replace('.jpg', '.png');
+  }
+});
+let newHtml = htmlParser.reverse(output);
+// newHtml will equal: <div><img src='my-picture.png' /></div>
+```
+
+### Listen for nodes being stringified when reversing
+
+```javascript
+// In this example we will remove the class attribute
+let html = "<div class='my-style'></div>";
+let output = htmlParser.parse(html);
+let newHtml = htmlParser.reverse(output, (node) => {
+  if(node.name === 'div') {
+    delete node.attributes['class'];
+  }
+});
+// newHtml will equal: <div></div>
+```
+
 # Development
 
 ``npm run init`` - Setup the app for development (run once after cloning)
@@ -133,5 +161,3 @@ MIT © [Nathan Anderson](https://github.com/nathan-andosen)
 Flattened to:
 <p>My name is Nathan</p>
 ```
-
-3. Add in event callback functions to the parse() and reverse() functions. For example, every time a node element is added (such as a div tag), the event function is fired with the node that is about to be injected into the output.

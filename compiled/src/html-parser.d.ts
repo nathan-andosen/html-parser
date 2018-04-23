@@ -2,6 +2,8 @@ import { iHtmlElement } from './interfaces';
 export declare class HtmlParser {
     private state;
     private errorCb;
+    private addNodeCb;
+    private stringifyNodeCb;
     private reset();
     private addNodeElement(newNode, currentElement);
     private createTextNode(text);
@@ -18,7 +20,7 @@ export declare class HtmlParser {
     private parseAttributes(tag);
     private parseScript(currentElement, endTag);
     private _parse(currentElement);
-    parse(html: string, cb?: (err: Error) => void): iHtmlElement[];
-    reverse(htmlNodes: iHtmlElement[]): any;
+    parse(html: string, errorCb?: (err: Error) => void, addNodeCb?: (nodeBeingAdded: iHtmlElement, parentElement: iHtmlElement) => void): iHtmlElement[];
+    reverse(htmlNodes: iHtmlElement[], stringifyNodeCb?: (node: iHtmlElement) => void): string;
     private reverseNodes(index, htmlNodes, html);
 }
