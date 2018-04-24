@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "/dist/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 5);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -70,6 +70,126 @@
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+var Utility = (function () {
+    function Utility() {
+    }
+    Utility.prototype.removeWhitespace = function (text) {
+        var tab = '\u0009';
+        var noBreakSpace = '\u00A0';
+        var newLine = '\n';
+        var CR = '\u000D';
+        var LF = '\u000A';
+        text = text.trim();
+        text = text.split(' ').join("");
+        text = text.split(tab).join("");
+        text = text.split(noBreakSpace).join("");
+        text = text.split(newLine).join("");
+        text = text.split(CR).join("");
+        text = text.split(LF).join("");
+        return text;
+    };
+    Utility.prototype.isWhitespace = function (ch) {
+        var tab = '\u0009';
+        var noBreakSpace = '\u00A0';
+        var newLine = '\n';
+        var CR = '\u000D';
+        var LF = '\u000A';
+        return (ch === tab) || (ch === ' ') || (ch === noBreakSpace)
+            || (ch === newLine) || (ch === CR) || (ch === LF);
+    };
+    Utility.prototype.textOnlyContainsWhitespace = function (text) {
+        var isOnlyWhitespace = true;
+        if (!text) {
+            return isOnlyWhitespace;
+        }
+        for (var i = 0; i < text.length; i++) {
+            if (!this.isWhitespace(text[i])) {
+                isOnlyWhitespace = false;
+                break;
+            }
+        }
+        return isOnlyWhitespace;
+    };
+    Utility.prototype.isLetter = function (ch) {
+        return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
+    };
+    Utility.prototype.isStartOfTag = function (ch, nextCh) {
+        if (!ch || !nextCh) {
+            return false;
+        }
+        return (ch === "<" && this.isLetter(nextCh));
+    };
+    Utility.prototype.isEndOfTag = function (ch, nextCh) {
+        if (!ch || !nextCh) {
+            return false;
+        }
+        return (ch === "<" && nextCh === "/");
+    };
+    Utility.prototype.isStartOfComment = function (text) {
+        return (text.indexOf('<!--') === 0);
+    };
+    return Utility;
+}());
+exports.Utility = Utility;
+var utility = new Utility();
+exports.utility = utility;
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ELEMENT_TYPES = {
+    TAG: "tag",
+    TEXT: "text",
+    COMMENT: "comment"
+};
+exports.EMPTY_TAGS = {
+    "area": 1,
+    "base": 1,
+    "basefont": 1,
+    "br": 1,
+    "col": 1,
+    "frame": 1,
+    "hr": 1,
+    "img": 1,
+    "input": 1,
+    "isindex": 1,
+    "link": 1,
+    "meta": 1,
+    "param": 1,
+    "embed": 1
+};
+exports.MODE_TYPES = {
+    TEXT: 'text',
+    TAG: 'tag',
+    STYLE: 'style',
+    SCRIPT: 'script'
+};
+exports.TAG_TYPES = {
+    EMPTY: 'empty',
+    DEFAULT: 'default',
+    SCRIPT: 'script',
+    STYLE: 'style',
+    COMMENT: 'comment'
+};
+exports.QUOTE_TYPES = {
+    SINGLE: 1,
+    DOUBLE: 2
+};
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var utility_1 = __webpack_require__(0);
 var PARSER_MODES = {
     READING_ATTR_NAME: 'reading-attr-name',
     READING_ATTR_VALUE: 'reading-attr-value'
@@ -84,15 +204,6 @@ var AttributeParser = (function () {
             attrValue: ''
         };
     }
-    AttributeParser.prototype.isWhitespace = function (ch) {
-        var tab = '\u0009';
-        var noBreakSpace = '\u00A0';
-        var newLine = '\n';
-        var CR = '\u000D';
-        var LF = '\u000A';
-        return (ch === tab) || (ch === ' ') || (ch === noBreakSpace)
-            || (ch === newLine) || (ch === CR) || (ch === LF);
-    };
     AttributeParser.prototype.reset = function () {
         this.state = {
             text: '',
@@ -137,7 +248,7 @@ var AttributeParser = (function () {
         }
         else if (ch === '/') {
         }
-        else if (this.isWhitespace(ch)) {
+        else if (utility_1.utility.isWhitespace(ch)) {
             if (this.state.attrName) {
                 attr[this.state.attrName] = null;
                 this.state.attrName = '';
@@ -148,7 +259,7 @@ var AttributeParser = (function () {
         }
     };
     AttributeParser.prototype.handleReadingAttrValue = function (ch, attr) {
-        if (this.isWhitespace(ch)) {
+        if (utility_1.utility.isWhitespace(ch)) {
             var firstCh = this.state.attrValue[0];
             var lastCh = this.state.attrValue[this.state.attrValue.length - 1];
             if ((firstCh === "'" || firstCh === '"') && firstCh !== lastCh) {
@@ -169,7 +280,7 @@ var AttributeParser = (function () {
         this.reset();
         var attr = {};
         var posOfFirstSpace = tag.indexOf(" ");
-        var posOfGreaterThan = tag.indexOf(">");
+        var posOfGreaterThan = tag.lastIndexOf(">");
         if (posOfFirstSpace > -1 && posOfFirstSpace < posOfGreaterThan) {
             var text = tag.substring(posOfFirstSpace, posOfGreaterThan);
             text = text.trim();
@@ -195,100 +306,89 @@ exports.AttributeParser = AttributeParser;
 
 
 /***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ELEMENT_TYPES = {
-    TAG: "tag",
-    TEXT: "text",
-    COMMENT: "comment"
-};
-exports.EMPTY_TAGS = {
-    "area": 1,
-    "base": 1,
-    "basefont": 1,
-    "br": 1,
-    "col": 1,
-    "frame": 1,
-    "hr": 1,
-    "img": 1,
-    "input": 1,
-    "isindex": 1,
-    "link": 1,
-    "meta": 1,
-    "param": 1,
-    "embed": 1
-};
-exports.MODE_TYPES = {
-    TEXT: 'text',
-    TAG: 'tag',
-    STYLE: 'style',
-    SCRIPT: 'script'
-};
-exports.TAG_TYPES = {
-    EMPTY: 'empty',
-    DEFAULT: 'default',
-    SCRIPT: 'script',
-    STYLE: 'style',
-    COMMENT: 'comment'
-};
-
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var Utility = (function () {
-    function Utility() {
-    }
-    Utility.prototype.removeWhitespace = function (text) {
-        var tab = '\u0009';
-        var noBreakSpace = '\u00A0';
-        var newLine = '\n';
-        var CR = '\u000D';
-        var LF = '\u000A';
-        text = text.trim();
-        text = text.split(' ').join("");
-        text = text.split(tab).join("");
-        text = text.split(noBreakSpace).join("");
-        text = text.split(newLine).join("");
-        text = text.split(CR).join("");
-        text = text.split(LF).join("");
-        return text;
-    };
-    Utility.prototype.isLetter = function (ch) {
-        return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
-    };
-    Utility.prototype.isStartOfTag = function (ch, nextCh) {
-        if (!ch || !nextCh) {
-            return false;
-        }
-        return (ch === "<" && this.isLetter(nextCh));
-    };
-    Utility.prototype.isEndOfTag = function (ch, nextCh) {
-        if (!ch || !nextCh) {
-            return false;
-        }
-        return (ch === "<" && nextCh === "/");
-    };
-    Utility.prototype.isStartOfComment = function (text) {
-        return (text.indexOf('<!--') === 0);
-    };
-    return Utility;
-}());
-exports.Utility = Utility;
-var utility = new Utility();
-exports.utility = utility;
-
-
-/***/ }),
 /* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var constants_1 = __webpack_require__(1);
+var utility_1 = __webpack_require__(0);
+var CleanParser = (function () {
+    function CleanParser() {
+    }
+    CleanParser.prototype.setOptions = function (options) {
+        options = options || {};
+        this.removeEmptyTags = (typeof options.removeEmptyTags !== 'undefined')
+            ? options.removeEmptyTags : true;
+        this.removeEmptyTextNodes =
+            (typeof options.removeEmptyTextNodes !== 'undefined')
+                ? options.removeEmptyTextNodes : true;
+    };
+    CleanParser.prototype.parseAndRemoveEmptyText = function (index, nodes) {
+        if (index >= nodes.length) {
+            return;
+        }
+        var node = nodes[index];
+        if (node.type === constants_1.ELEMENT_TYPES.TEXT
+            && utility_1.utility.textOnlyContainsWhitespace(node.data)) {
+            nodes.splice(index, 1);
+            index--;
+        }
+        else if (node.type === constants_1.ELEMENT_TYPES.TAG && node.children
+            && node.children.length > 0) {
+            this.parseAndRemoveEmptyText(0, node.children);
+        }
+        this.parseAndRemoveEmptyText(++index, nodes);
+    };
+    CleanParser.prototype.parseAndRemoveEmptyTags = function (index, nodes) {
+        if (index >= nodes.length) {
+            return;
+        }
+        var node = nodes[index];
+        if (node.type === constants_1.ELEMENT_TYPES.TAG) {
+            if (node.children && node.children.length > 0) {
+                this.parseAndRemoveEmptyTags(0, node.children);
+            }
+            var noChildern = (!node.children || node.children.length <= 0);
+            if (node.tagType === constants_1.TAG_TYPES.DEFAULT && noChildern) {
+                nodes.splice(index, 1);
+                index--;
+            }
+        }
+        this.parseAndRemoveEmptyTags(++index, nodes);
+    };
+    CleanParser.prototype.parse = function (htmlNodes, options) {
+        this.setOptions(options);
+        if (this.removeEmptyTextNodes) {
+            this.parseAndRemoveEmptyText(0, htmlNodes);
+        }
+        if (this.removeEmptyTags) {
+            this.parseAndRemoveEmptyTags(0, htmlNodes);
+        }
+        return htmlNodes;
+    };
+    return CleanParser;
+}());
+exports.CleanParser = CleanParser;
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var constants_1 = __webpack_require__(1);
+exports.ELEMENT_TYPES = constants_1.ELEMENT_TYPES;
+exports.TAG_TYPES = constants_1.TAG_TYPES;
+var html_parser_1 = __webpack_require__(9);
+exports.HtmlParser = html_parser_1.HtmlParser;
+
+
+/***/ }),
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
@@ -296,18 +396,19 @@ exports.utility = utility;
 // so they can be tested in a browser for debugging
 
 // require all test files
-var testsContext = __webpack_require__(4);
+var testsContext = __webpack_require__(6);
 testsContext.keys().forEach(testsContext);
 
 
 /***/ }),
-/* 4 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var map = {
-	"./attribute-parser.spec": 5,
-	"./html-parser.spec": 6,
-	"./utility.spec": 9
+	"./attribute-parser.spec": 7,
+	"./clear-parser.spec": 8,
+	"./html-parser.spec": 10,
+	"./utility.spec": 11
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -323,16 +424,16 @@ webpackContext.keys = function webpackContextKeys() {
 };
 webpackContext.resolve = webpackContextResolve;
 module.exports = webpackContext;
-webpackContext.id = 4;
+webpackContext.id = 6;
 
 /***/ }),
-/* 5 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var attribute_parser_1 = __webpack_require__(0);
+var attribute_parser_1 = __webpack_require__(2);
 describe('Attribute parser', function () {
     var attrParser = new attribute_parser_1.AttributeParser();
     describe('parse()', function () {
@@ -384,6 +485,12 @@ describe('Attribute parser', function () {
             var output = attrParser.parse(tag);
             expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
         });
+        it('should parse attributes with greater than symbol in attribute text', function () {
+            var tag = "<img alt='5>6' custom='d<f' />";
+            var output = attrParser.parse(tag);
+            var expectedResult = { "alt": "'5>6'", "custom": "'d<f'" };
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
     });
     describe('reverse()', function () {
         it('should reverse attributes object returned from parse function', function () {
@@ -398,129 +505,65 @@ describe('Attribute parser', function () {
 
 
 /***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var src_1 = __webpack_require__(7);
-describe('HtmlParser', function () {
-    var htmlParser = new src_1.HtmlParser();
-    describe('parse()', function () {
-        it('should parse plain text', function () {
-            var html = "plain text ";
-            var expectedResult = [{ "type": "text", "data": "plain text " }];
-            var output = htmlParser.parse(html);
-            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
-        });
-        it('should parse plain text with tag', function () {
-            var html = "plain text <br />";
-            var expectedResult = [{ "type": "text", "data": "plain text " }, { "type": "tag", "tagType": "empty", "name": "br", "attributes": {}, "children": [] }];
-            var output = htmlParser.parse(html);
-            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
-        });
-        it('should handle html comment', function () {
-            var html = "<div><!--This is not seen-->Hello world!</div>";
-            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "div", "attributes": {}, "children": [{ "type": "comment", "data": "This is not seen" }, { "type": "text", "data": "Hello world!" }] }];
-            var output = htmlParser.parse(html);
-            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
-        });
-        it('should parse script tag', function () {
-            var html = "<body><script type=\"javascript/text\">var a = ( 5 > 2) ? 3 : 3;</script></body>";
-            var output = htmlParser.parse(html);
-            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "body", "attributes": {}, "children": [{ "type": "tag", "tagType": "script", "name": "script", "attributes": { "type": "\"javascript/text\"" }, "children": [{ "type": "text", "data": "var a = ( 5 > 2) ? 3 : 3;" }] }] }];
-            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
-        });
-        it('should parse style tag', function () {
-            var html = "<body><style>body > p {}</style></body>";
-            var output = htmlParser.parse(html);
-            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "body", "attributes": {}, "children": [{ "type": "tag", "tagType": "style", "name": "style", "attributes": {}, "children": [{ "type": "text", "data": "body > p {}" }] }] }];
-            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
-        });
-        it('should parse nested tags', function () {
-            var html = "<div><div><p> hi<span> there</span></p></div></div>";
-            var output = htmlParser.parse(html);
-            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "div", "attributes": {}, "children": [{ "type": "tag", "tagType": "default", "name": "div", "attributes": {}, "children": [{ "type": "tag", "tagType": "default", "name": "p", "attributes": {}, "children": [{ "type": "text", "data": " hi" }, { "type": "tag", "tagType": "default", "name": "span", "attributes": {}, "children": [{ "type": "text", "data": " there" }] }] }] }] }];
-            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
-        });
-        it('should parse tags with attributes', function () {
-            var html = "<div class='one'><input required /></div>";
-            var output = htmlParser.parse(html);
-            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "div", "attributes": { "class": "'one'" }, "children": [{ "type": "tag", "tagType": "empty", "name": "input", "attributes": { "required": null }, "children": [] }] }];
-            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
-        });
-        it('should pass error for invalid html', function () {
-            var html = "<div><p>hi</div>";
-            var errorCalled = 0;
-            var output = htmlParser.parse(html, function (err) {
-                errorCalled++;
-            });
-            expect(errorCalled).toBeGreaterThan(0);
-        });
-        it('should parse tags with capital letters', function () {
-            var html = "<SPAN><p>hi</P> there</SPAN>";
-            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "SPAN", "attributes": {}, "children": [{ "type": "tag", "tagType": "default", "name": "p", "attributes": {}, "children": [{ "type": "text", "data": "hi" }] }, { "type": "text", "data": " there" }] }];
-            var output = htmlParser.parse(html);
-            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
-        });
-        it('should parse custom tags', function () {
-            var html = "<cust-tag>hello</cust-tag>";
-            var output = htmlParser.parse(html);
-            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "cust-tag", "attributes": {}, "children": [{ "type": "text", "data": "hello" }] }];
-            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
-        });
-        it('should parse text content that has less than or greater than symbols', function () {
-            var html = "<p alt='d>f'> 5 > 3 and 2 < 4 </p>";
-            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "p", "attributes": {}, "children": [{ "type": "text", "data": " 5 > 3 and 2 < 4 " }] }];
-            var output = htmlParser.parse(html);
-            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
-        });
-        it('should parse tag split over lines', function () {
-            var html = "hi\n<p\n  class=\"one\">\n  a paragraph\n</p>";
-            var expectedResult = [{ "type": "text", "data": "hi\n" }, { "type": "tag", "tagType": "default", "name": "p", "attributes": { "class": "\"one\"" }, "children": [{ "type": "text", "data": "\n  a paragraph\n" }] }];
-            var output = htmlParser.parse(html);
-            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
-        });
-    });
-    describe('reverse()', function () {
-        it('should reverse output from the parse function back into html', function () {
-            var html = "<div class='one'><p>hi <span>there</span></p><br /></div>";
-            var output = htmlParser.parse(html);
-            var reversedHtml = htmlParser.reverse(output);
-            expect(reversedHtml).toEqual(html);
-        });
-    });
-});
-
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var constants_1 = __webpack_require__(1);
-exports.ELEMENT_TYPES = constants_1.ELEMENT_TYPES;
-exports.TAG_TYPES = constants_1.TAG_TYPES;
-var html_parser_1 = __webpack_require__(8);
-exports.HtmlParser = html_parser_1.HtmlParser;
-
-
-/***/ }),
 /* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var utility_1 = __webpack_require__(2);
+var clean_parser_1 = __webpack_require__(3);
+var src_1 = __webpack_require__(4);
+describe('CleanParser', function () {
+    var htmlParser = new src_1.HtmlParser();
+    var cleanParser = new clean_parser_1.CleanParser();
+    describe('parse()', function () {
+        it('should remove empty tags (basic)', function () {
+            var html = "<div>hi <div><span></span></div></div>";
+            var output = htmlParser.parse(html);
+            output = cleanParser.parse(output, {
+                removeEmptyTextNodes: false
+            });
+            var expectedResult = "<div>hi </div>";
+            expect(htmlParser.reverse(output)).toEqual(expectedResult);
+        });
+        it('should remove empty tags', function () {
+            var html = "<div>hi <span></span> there, <br /> how are you<p></p></div>";
+            var output = htmlParser.parse(html);
+            output = cleanParser.parse(output, {
+                removeEmptyTextNodes: false
+            });
+            var expectedResult = "<div>hi  there, <br /> how are you</div>";
+            expect(htmlParser.reverse(output)).toEqual(expectedResult);
+        });
+        it('should remove empty text nodes', function () {
+            var html = "<div><span></span>hi<span> </span> </div>";
+            var output = htmlParser.parse(html);
+            output = cleanParser.parse(output, {
+                removeEmptyTags: false
+            });
+            var expectedResult = "<div><span></span>hi<span></span></div>";
+            expect(htmlParser.reverse(output)).toEqual(expectedResult);
+        });
+    });
+});
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var utility_1 = __webpack_require__(0);
 var constants_1 = __webpack_require__(1);
-var attribute_parser_1 = __webpack_require__(0);
+var attribute_parser_1 = __webpack_require__(2);
+var clean_parser_1 = __webpack_require__(3);
 var HtmlParser = (function () {
     function HtmlParser() {
         this.errorCb = null;
+        this.addNodeCb = null;
+        this.stringifyNodeCb = null;
     }
     HtmlParser.prototype.reset = function () {
         this.state = {
@@ -531,6 +574,9 @@ var HtmlParser = (function () {
         };
     };
     HtmlParser.prototype.addNodeElement = function (newNode, currentElement) {
+        if (this.addNodeCb) {
+            this.addNodeCb(newNode, currentElement);
+        }
         if (currentElement) {
             if (!currentElement.children) {
                 currentElement.children = [];
@@ -688,7 +734,7 @@ var HtmlParser = (function () {
     };
     HtmlParser.prototype.parseTag = function (currentElement) {
         var nextText = this.state.html.substring(this.state.currentPos);
-        var posEndTag = nextText.indexOf('>') + 1;
+        var posEndTag = this.findPositionOfClosingTag(nextText) + 1;
         var tagText = nextText.substring(0, posEndTag);
         var tagNode = this.createTagNode(tagText);
         this.state.currentPos = this.state.currentPos + posEndTag;
@@ -711,6 +757,45 @@ var HtmlParser = (function () {
             tagNode.parentElement = currentElement;
             this._parse(tagNode);
         }
+    };
+    HtmlParser.prototype.findPositionOfClosingTag = function (text) {
+        var posOfFirstSpace = text.indexOf(" ");
+        var pos = (posOfFirstSpace > -1) ? posOfFirstSpace + 1 : 0;
+        var posOfGreaterThan = text.indexOf(">");
+        if (posOfGreaterThan < pos) {
+            return posOfGreaterThan;
+        }
+        var quoteType = null;
+        var insideQuote = false;
+        while (true) {
+            var ch = (pos < text.length) ? text[pos] : null;
+            if (ch === '>' && !insideQuote) {
+                return pos;
+            }
+            else if (ch === "'") {
+                if (insideQuote && quoteType === constants_1.QUOTE_TYPES.SINGLE) {
+                    insideQuote = false;
+                }
+                else if (!insideQuote) {
+                    insideQuote = true;
+                    quoteType = constants_1.QUOTE_TYPES.SINGLE;
+                }
+            }
+            else if (ch === '"') {
+                if (insideQuote && quoteType === constants_1.QUOTE_TYPES.DOUBLE) {
+                    insideQuote = false;
+                }
+                else if (!insideQuote) {
+                    insideQuote = true;
+                    quoteType = constants_1.QUOTE_TYPES.DOUBLE;
+                }
+            }
+            else if (ch === null) {
+                break;
+            }
+            pos++;
+        }
+        return text.length - 1;
     };
     HtmlParser.prototype.parseAttributes = function (tag) {
         var attrParser = new attribute_parser_1.AttributeParser();
@@ -752,16 +837,16 @@ var HtmlParser = (function () {
                 break;
         }
     };
-    HtmlParser.prototype.parse = function (html, cb) {
-        if (cb) {
-            this.errorCb = cb;
-        }
+    HtmlParser.prototype.parse = function (html, errorCb, addNodeCb) {
+        this.errorCb = (errorCb) ? errorCb : null;
+        this.addNodeCb = (addNodeCb) ? addNodeCb : null;
         this.reset();
         this.state.html = html;
         this._parse(null);
         return this.state.output;
     };
-    HtmlParser.prototype.reverse = function (htmlNodes) {
+    HtmlParser.prototype.reverse = function (htmlNodes, stringifyNodeCb) {
+        this.stringifyNodeCb = (stringifyNodeCb) ? stringifyNodeCb : null;
         return this.reverseNodes(0, htmlNodes, '');
     };
     HtmlParser.prototype.reverseNodes = function (index, htmlNodes, html) {
@@ -769,6 +854,9 @@ var HtmlParser = (function () {
             return html;
         }
         var node = htmlNodes[index];
+        if (this.stringifyNodeCb) {
+            this.stringifyNodeCb(node);
+        }
         if (node.type === constants_1.ELEMENT_TYPES.TEXT) {
             html += node.data;
         }
@@ -794,19 +882,159 @@ var HtmlParser = (function () {
         index++;
         return this.reverseNodes(index, htmlNodes, html);
     };
+    HtmlParser.prototype.clean = function (nodes, options) {
+        var cleanParser = new clean_parser_1.CleanParser();
+        return cleanParser.parse(nodes, options);
+    };
     return HtmlParser;
 }());
 exports.HtmlParser = HtmlParser;
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var utility_1 = __webpack_require__(2);
+var src_1 = __webpack_require__(4);
+describe('HtmlParser', function () {
+    var htmlParser = new src_1.HtmlParser();
+    describe('parse()', function () {
+        it('should parse plain text', function () {
+            var html = "plain text ";
+            var expectedResult = [{ "type": "text", "data": "plain text " }];
+            var output = htmlParser.parse(html);
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should parse plain text with tag', function () {
+            var html = "plain text <br />";
+            var expectedResult = [{ "type": "text", "data": "plain text " }, { "type": "tag", "tagType": "empty", "name": "br", "attributes": {}, "children": [] }];
+            var output = htmlParser.parse(html);
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should handle html comment', function () {
+            var html = "<div><!--This is not seen-->Hello world!</div>";
+            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "div", "attributes": {}, "children": [{ "type": "comment", "data": "This is not seen" }, { "type": "text", "data": "Hello world!" }] }];
+            var output = htmlParser.parse(html);
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should parse script tag', function () {
+            var html = "<body><script type=\"javascript/text\">var a = ( 5 > 2) ? 3 : 3;</script></body>";
+            var output = htmlParser.parse(html);
+            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "body", "attributes": {}, "children": [{ "type": "tag", "tagType": "script", "name": "script", "attributes": { "type": "\"javascript/text\"" }, "children": [{ "type": "text", "data": "var a = ( 5 > 2) ? 3 : 3;" }] }] }];
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should parse style tag', function () {
+            var html = "<body><style>body > p {}</style></body>";
+            var output = htmlParser.parse(html);
+            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "body", "attributes": {}, "children": [{ "type": "tag", "tagType": "style", "name": "style", "attributes": {}, "children": [{ "type": "text", "data": "body > p {}" }] }] }];
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should parse nested tags', function () {
+            var html = "<div><div><p> hi<span> there</span></p></div></div>";
+            var output = htmlParser.parse(html);
+            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "div", "attributes": {}, "children": [{ "type": "tag", "tagType": "default", "name": "div", "attributes": {}, "children": [{ "type": "tag", "tagType": "default", "name": "p", "attributes": {}, "children": [{ "type": "text", "data": " hi" }, { "type": "tag", "tagType": "default", "name": "span", "attributes": {}, "children": [{ "type": "text", "data": " there" }] }] }] }] }];
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should parse tags with attributes', function () {
+            var html = "<div class='one'><input required /></div>";
+            var output = htmlParser.parse(html);
+            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "div", "attributes": { "class": "'one'" }, "children": [{ "type": "tag", "tagType": "empty", "name": "input", "attributes": { "required": null }, "children": [] }] }];
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should pass error for invalid html', function () {
+            var html = "<div><p>hi</div>";
+            var errorCalled = 0;
+            var output = htmlParser.parse(html, function (err) {
+                errorCalled++;
+            });
+            expect(errorCalled).toBeGreaterThan(0);
+        });
+        it('should parse tags with capital letters', function () {
+            var html = "<SPAN><p>hi</P> there</SPAN>";
+            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "SPAN", "attributes": {}, "children": [{ "type": "tag", "tagType": "default", "name": "p", "attributes": {}, "children": [{ "type": "text", "data": "hi" }] }, { "type": "text", "data": " there" }] }];
+            var output = htmlParser.parse(html);
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should parse custom tags', function () {
+            var html = "<cust-tag>hello</cust-tag>";
+            var output = htmlParser.parse(html);
+            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "cust-tag", "attributes": {}, "children": [{ "type": "text", "data": "hello" }] }];
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should parse text content that has less than or greater than symbols', function () {
+            var html = "<p> 5 > 3 and 2 < 4 </p>";
+            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "p", "attributes": {}, "children": [{ "type": "text", "data": " 5 > 3 and 2 < 4 " }] }];
+            var output = htmlParser.parse(html);
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should handle greater than symbol in attribute', function () {
+            var html = "<img alt='5>6' custom='d<f' /><span class=d>f>hi</span>";
+            var output = htmlParser.parse(html);
+            var expectedResult = [{ "type": "tag", "tagType": "empty", "name": "img", "attributes": { "alt": "'5>6'", "custom": "'d<f'" }, "children": [] }, { "type": "tag", "tagType": "default", "name": "span", "attributes": { "class": "d" }, "children": [{ "type": "text", "data": "f>hi" }] }];
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should handle quotes in attributes', function () {
+            var html = "<p custom=\"This's there ' s\"><span tag='\"hi there\"'></span></p>";
+            var output = htmlParser.parse(html);
+            var expectedResult = [{ "type": "tag", "tagType": "default", "name": "p", "attributes": { "custom": "\"This's there ' s\"" }, "children": [{ "type": "tag", "tagType": "default", "name": "span", "attributes": { "tag": "'\"hi there\"'" }, "children": [] }] }];
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should parse tag split over lines', function () {
+            var html = "hi\n<p\n  class=\"one\">\n  a paragraph\n</p>";
+            var expectedResult = [{ "type": "text", "data": "hi\n" }, { "type": "tag", "tagType": "default", "name": "p", "attributes": { "class": "\"one\"" }, "children": [{ "type": "text", "data": "\n  a paragraph\n" }] }];
+            var output = htmlParser.parse(html);
+            expect(JSON.stringify(output)).toEqual(JSON.stringify(expectedResult));
+        });
+        it('should fire event each time a node is added', function () {
+            var html = "<p class='one'>My <span>name is <strong>Nathan</strong></span></p>";
+            var cnt = 0;
+            var output = htmlParser.parse(html, null, function (node, parentNode) {
+                cnt++;
+            });
+            expect(cnt).toEqual(6);
+        });
+    });
+    describe('reverse()', function () {
+        it('should reverse output from the parse function back into html', function () {
+            var html = "<div class='one'><p>hi <span>there</span></p><br /></div>";
+            var output = htmlParser.parse(html);
+            var reversedHtml = htmlParser.reverse(output);
+            expect(reversedHtml).toEqual(html);
+        });
+        it('should fire event each time a node is stringified', function () {
+            var html = "<p class='one'>My <span>name is <strong>Nathan</strong></span></p>";
+            var output = htmlParser.parse(html);
+            var newHtml = htmlParser.reverse(output, function (node) {
+                if (node.name === 'p') {
+                    node.attributes['class'] = "'onne'";
+                }
+            });
+            expect(newHtml).toEqual("<p class='onne'>My <span>name is <strong>Nathan</strong></span></p>");
+        });
+    });
+    describe('clean()', function () {
+        it('should clean and remove unwanted html', function () {
+            var html = "<div>\n<p>\n</p><p> Hello</p>\n <div><span></span>\n</div>\n<div>hi <br><span></span>\n</div><div><p><span> </span></p></div></div>";
+            var output = htmlParser.parse(html);
+            output = htmlParser.clean(output);
+            var expectedResult = "<div><p> Hello</p><div>hi <br /></div></div>";
+            expect(htmlParser.reverse(output)).toEqual(expectedResult);
+        });
+    });
+});
+
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var utility_1 = __webpack_require__(0);
 describe('Utility', function () {
     describe('removeWhitespace()', function () {
         it('should remove all white space', function () {

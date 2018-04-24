@@ -19,3 +19,7 @@ export interface iSearchTagResult {
     type: string;
     pos?: number;
 }
+export interface iCleanOptions {
+    removeEmptyTags?: boolean;
+    removeEmptyTextNodes?: boolean;
+}

@@ -32,3 +32,7 @@ export declare const TAG_TYPES: {
     STYLE: string;
     COMMENT: string;
 };
+export declare const QUOTE_TYPES: {
+    SINGLE: number;
+    DOUBLE: number;
+};
