@@ -168,4 +168,19 @@ describe('HtmlParser', () => {
       expect(newHtml).toEqual("<p class='onne'>My <span>name is <strong>Nathan</strong></span></p>");
     });
   });
+
+
+
+  /**
+   * clean()
+   */
+  describe('clean()', () => {
+    it('should clean and remove unwanted html', () => {
+      let html = "<div>\n<p>\n</p><p> Hello</p>\n <div><span></span>\n</div>\n<div>hi <br><span></span>\n</div><div><p><span> </span></p></div></div>";
+      let output = htmlParser.parse(html);
+      output = htmlParser.clean(output);
+      let expectedResult = "<div><p> Hello</p><div>hi <br /></div></div>";
+      expect(htmlParser.reverse(output)).toEqual(expectedResult);
+    });
+  });
 });

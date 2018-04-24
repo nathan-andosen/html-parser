@@ -1,7 +1,9 @@
 
 # Unreleased
 
+__Added:__
 
+* Added ability to clean html tags, such as, removing empty tags or removing text nodes that only contain whitespace
 
 __Fixed:__
 

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var utility_1 = require("./utility");
 var PARSER_MODES = {
     READING_ATTR_NAME: 'reading-attr-name',
     READING_ATTR_VALUE: 'reading-attr-value'
@@ -14,15 +15,6 @@ var AttributeParser = (function () {
             attrValue: ''
         };
     }
-    AttributeParser.prototype.isWhitespace = function (ch) {
-        var tab = '\u0009';
-        var noBreakSpace = '\u00A0';
-        var newLine = '\n';
-        var CR = '\u000D';
-        var LF = '\u000A';
-        return (ch === tab) || (ch === ' ') || (ch === noBreakSpace)
-            || (ch === newLine) || (ch === CR) || (ch === LF);
-    };
     AttributeParser.prototype.reset = function () {
         this.state = {
             text: '',
@@ -67,7 +59,7 @@ var AttributeParser = (function () {
         }
         else if (ch === '/') {
         }
-        else if (this.isWhitespace(ch)) {
+        else if (utility_1.utility.isWhitespace(ch)) {
             if (this.state.attrName) {
                 attr[this.state.attrName] = null;
                 this.state.attrName = '';
@@ -78,7 +70,7 @@ var AttributeParser = (function () {
         }
     };
     AttributeParser.prototype.handleReadingAttrValue = function (ch, attr) {
-        if (this.isWhitespace(ch)) {
+        if (utility_1.utility.isWhitespace(ch)) {
             var firstCh = this.state.attrValue[0];
             var lastCh = this.state.attrValue[this.state.attrValue.length - 1];
             if ((firstCh === "'" || firstCh === '"') && firstCh !== lastCh) {

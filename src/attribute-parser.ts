@@ -1,4 +1,4 @@
-
+import { utility } from './utility';
 
 const PARSER_MODES = {
   READING_ATTR_NAME: 'reading-attr-name',
@@ -21,25 +21,6 @@ export class AttributeParser {
     attrName: '',
     attrValue: ''
   };
-
-
-  /**
-   * Check if a character is whitespace
-   * 
-   * @private
-   * @param {string} ch 
-   * @returns 
-   * @memberof AttributeParser
-   */
-  private isWhitespace(ch: string) {
-    var tab = '\u0009';
-    var noBreakSpace = '\u00A0';
-    var newLine = '\n';
-    var CR = '\u000D';
-    var LF = '\u000A';
-    return (ch === tab) || (ch === ' ') || (ch === noBreakSpace) 
-      || (ch === newLine) || (ch === CR) || (ch === LF);
-  }
 
 
   /**
@@ -121,7 +102,7 @@ export class AttributeParser {
     } else if(ch === '/') {
       // not an attribute, probably just an end tag, like <input />
       // do nothing
-    } else if(this.isWhitespace(ch)) {
+    } else if(utility.isWhitespace(ch)) {
       // possibily be an attribute without a value
       if(this.state.attrName) {
         attr[this.state.attrName] = null;
@@ -142,7 +123,7 @@ export class AttributeParser {
    * @memberof AttributeParser
    */
   private handleReadingAttrValue(ch: string, attr) {
-    if(this.isWhitespace(ch)) {
+    if(utility.isWhitespace(ch)) {
       let firstCh = this.state.attrValue[0];
       let lastCh = this.state.attrValue[this.state.attrValue.length - 1];
       if((firstCh === "'" || firstCh === '"') && firstCh !== lastCh) {

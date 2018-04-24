@@ -1,4 +1,4 @@
-![Test Coverage-shield-badge-1](https://img.shields.io/badge/Test%20Coverage-95.87%25-brightgreen.svg)
+![Test Coverage-shield-badge-1](https://img.shields.io/badge/Test%20Coverage-96.44%25-brightgreen.svg)
 
 # Html-Parser
 
@@ -116,6 +116,28 @@ let newHtml = htmlParser.reverse(output, (node) => {
 // newHtml will equal: <div></div>
 ```
 
+### Clean up the html
+
+The clean function allows you to remove unwanted html tags (such as empty tags) and empty text nodes.
+
+__Available options:__
+
+|Options|Description|
+|-------|-----------|
+|removeEmptyTags|Remove empty html tags, such as ``<p></p>``|
+|removeEmptyTextNodes|Basically remove a text node if it only contains whitespace|
+
+
+```javascript
+let html = "<div>Hi there<p></p></div>";
+// by default, clean options are true, so this is only here for demo purposes
+let cleanOptions = { removeEmptyTags: true, removeEmptyTextNodes: true };
+let output = htmlParser.parse(html);
+output = htmlParser.clean(output, cleanOptions);
+let newHtml = htmlParser.reverse(output);
+// newHtml will equal: <div>Hi there</div>
+```
+
 # Development
 
 ``npm run init`` - Setup the app for development (run once after cloning)
@@ -149,10 +171,7 @@ MIT © [Nathan Anderson](https://github.com/nathan-andosen)
 
 # ToDo
 
-1. Add in a clean() function. This function will have options to:
-
-* remove empty tags
-* remove text nodes that are just whitespace, tabs, new lines and so on
+1. Add in more unit tests
 
 2. Add in a flattenText() function. This will flatten many nested text nodes into one text node.
 

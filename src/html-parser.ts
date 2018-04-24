@@ -6,8 +6,14 @@ import {
   TAG_TYPES,
   QUOTE_TYPES
 } from './constants';
-import { iHtmlElement, iSearchTagResult, iState } from './interfaces';
+import { 
+  iHtmlElement, 
+  iSearchTagResult, 
+  iState, 
+  iCleanOptions 
+} from './interfaces';
 import { AttributeParser } from './attribute-parser';
+import { CleanParser } from './clean-parser';
 
 
 /**
@@ -513,5 +519,19 @@ export class HtmlParser {
     }
     index++;
     return this.reverseNodes(index, htmlNodes, html);
+  }
+
+
+  /**
+   * Parse html element nodes to clean and remove unwanted tags
+   * 
+   * @param {iHtmlElement[]} nodes 
+   * @param {iCleanOptions} options 
+   * @returns {iHtmlElement[]} 
+   * @memberof HtmlParser
+   */
+  public clean(nodes: iHtmlElement[], options?: iCleanOptions): iHtmlElement[] {
+    let cleanParser = new CleanParser();
+    return cleanParser.parse(nodes, options);
   }
 }

@@ -1,4 +1,4 @@
-import { iHtmlElement } from './interfaces';
+import { iHtmlElement, iCleanOptions } from './interfaces';
 export declare class HtmlParser {
     private state;
     private errorCb;
@@ -23,4 +23,5 @@ export declare class HtmlParser {
     parse(html: string, errorCb?: (err: Error) => void, addNodeCb?: (nodeBeingAdded: iHtmlElement, parentElement: iHtmlElement) => void): iHtmlElement[];
     reverse(htmlNodes: iHtmlElement[], stringifyNodeCb?: (node: iHtmlElement) => void): string;
     private reverseNodes(index, htmlNodes, html);
+    clean(nodes: iHtmlElement[], options?: iCleanOptions): iHtmlElement[];
 }

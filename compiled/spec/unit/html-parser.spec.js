@@ -117,5 +117,14 @@ describe('HtmlParser', function () {
             expect(newHtml).toEqual("<p class='onne'>My <span>name is <strong>Nathan</strong></span></p>");
         });
     });
+    describe('clean()', function () {
+        it('should clean and remove unwanted html', function () {
+            var html = "<div>\n<p>\n</p><p> Hello</p>\n <div><span></span>\n</div>\n<div>hi <br><span></span>\n</div><div><p><span> </span></p></div></div>";
+            var output = htmlParser.parse(html);
+            output = htmlParser.clean(output);
+            var expectedResult = "<div><p> Hello</p><div>hi <br /></div></div>";
+            expect(htmlParser.reverse(output)).toEqual(expectedResult);
+        });
+    });
 });
 //# sourceMappingURL=html-parser.spec.js.map

@@ -18,6 +18,28 @@ var Utility = (function () {
         text = text.split(LF).join("");
         return text;
     };
+    Utility.prototype.isWhitespace = function (ch) {
+        var tab = '\u0009';
+        var noBreakSpace = '\u00A0';
+        var newLine = '\n';
+        var CR = '\u000D';
+        var LF = '\u000A';
+        return (ch === tab) || (ch === ' ') || (ch === noBreakSpace)
+            || (ch === newLine) || (ch === CR) || (ch === LF);
+    };
+    Utility.prototype.textOnlyContainsWhitespace = function (text) {
+        var isOnlyWhitespace = true;
+        if (!text) {
+            return isOnlyWhitespace;
+        }
+        for (var i = 0; i < text.length; i++) {
+            if (!this.isWhitespace(text[i])) {
+                isOnlyWhitespace = false;
+                break;
+            }
+        }
+        return isOnlyWhitespace;
+    };
     Utility.prototype.isLetter = function (ch) {
         return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
     };

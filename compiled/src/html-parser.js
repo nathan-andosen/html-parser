@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var utility_1 = require("./utility");
 var constants_1 = require("./constants");
 var attribute_parser_1 = require("./attribute-parser");
+var clean_parser_1 = require("./clean-parser");
 var HtmlParser = (function () {
     function HtmlParser() {
         this.errorCb = null;
@@ -325,6 +326,10 @@ var HtmlParser = (function () {
         }
         index++;
         return this.reverseNodes(index, htmlNodes, html);
+    };
+    HtmlParser.prototype.clean = function (nodes, options) {
+        var cleanParser = new clean_parser_1.CleanParser();
+        return cleanParser.parse(nodes, options);
     };
     return HtmlParser;
 }());

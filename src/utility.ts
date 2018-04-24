@@ -32,6 +32,44 @@ export class Utility {
 
 
   /**
+   * Check if a character is whitespace
+   * 
+   * @param {string} ch 
+   * @returns {boolean} 
+   * @memberof Utility
+   */
+  public isWhitespace(ch: string): boolean {
+    var tab = '\u0009';
+    var noBreakSpace = '\u00A0';
+    var newLine = '\n';
+    var CR = '\u000D';
+    var LF = '\u000A';
+    return (ch === tab) || (ch === ' ') || (ch === noBreakSpace) 
+      || (ch === newLine) || (ch === CR) || (ch === LF);
+  }
+
+
+  /**
+   * Determine if a string of text contains only whitespace characters
+   * 
+   * @param {string} text 
+   * @returns {boolean} 
+   * @memberof Utility
+   */
+  public textOnlyContainsWhitespace(text: string) : boolean {
+    let isOnlyWhitespace = true;
+    if(!text) { return isOnlyWhitespace; }
+    for(let i = 0; i < text.length; i++) {
+      if(!this.isWhitespace(text[i])) {
+        isOnlyWhitespace = false;
+        break;
+      }
+    }
+    return isOnlyWhitespace;
+  }
+
+
+  /**
    * Determine if a character is a letter
    * 
    * @param {string} ch 
