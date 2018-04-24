@@ -10,6 +10,7 @@ A simple forgiving html parser for javascript (browser and nodejs).
 * Parse HTML that may not be valid
 * HTML is parsed into a json object, this object can be modified and converted
 back into HTML
+* Ability to clean HTML, such as remove empty tags and more.
 
 ### Not supported
 
