@@ -1,5 +1,11 @@
 
-# Unreleased
+# 1.1.1
+
+__Fixed:__
+
+* Added _dist/_ folder to npm module
+
+# 1.1.0
 
 __Added:__
 
