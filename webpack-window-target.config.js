@@ -13,7 +13,7 @@ module.exports = {
     path: path.join(__dirname, "dist"),
     filename: (process.env.NODE_ENV === 'production')
       ? "thenja-html-parser-window.min.js" : "thenja-html-parser-window.js",
-    library : "window.Thenja = window.Thenja || {}, window.Thenja",
+    library : "window.Thenja = window.Thenja || {}, window.Thenja.HtmlParser",
     libraryTarget: 'assign'
   },
   resolve: {

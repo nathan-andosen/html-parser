@@ -8,6 +8,7 @@
 
   <script>
     function parseHtml() {
+      console.log(Thenja.HtmlParser);
       var val = document.getElementById("txtHtml").value;
       if(!val) { alert('Enter in some html'); }
       var htmlParser = new Thenja.HtmlParser();

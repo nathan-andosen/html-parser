@@ -1,4 +1,4 @@
-window.Thenja = window.Thenja || {}, window.Thenja =
+window.Thenja = window.Thenja || {}, window.Thenja.HtmlParser =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};

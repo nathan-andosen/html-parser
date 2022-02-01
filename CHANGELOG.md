@@ -1,4 +1,10 @@
 
+# 1.1.3
+
+__Fixed:__
+
+* Fixed window target build
+
 # 1.1.2
 
 __Fixed:__
