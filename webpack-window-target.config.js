@@ -12,9 +12,9 @@ module.exports = {
   output: {
     path: path.join(__dirname, "dist"),
     filename: (process.env.NODE_ENV === 'production')
-      ? "thenja-html-parser.min.js" : "thenja-html-parser.js",
-    library : ["Thenja"],
-    libraryTarget: 'umd'
+      ? "thenja-html-parser-window.min.js" : "thenja-html-parser-window.js",
+    library : "window.Thenja = window.Thenja || {}, window.Thenja",
+    libraryTarget: 'assign'
   },
   resolve: {
     // Add `.ts` and `.tsx` as a resolvable extension.

@@ -31,6 +31,9 @@ rm -rf ./compiled
 grunt test
 
 # Create the validator dist minified files
+NODE_ENV=dev ./node_modules/.bin/webpack --config webpack.config.js
 NODE_ENV=production ./node_modules/.bin/webpack --config webpack.config.js
+NODE_ENV=dev ./node_modules/.bin/webpack --config webpack-window-target.config.js
+NODE_ENV=production ./node_modules/.bin/webpack --config webpack-window-target.config.js
 
 rm -rf ./dist/compiled

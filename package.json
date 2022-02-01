@@ -10,7 +10,7 @@
   ],
   "bugs": "https://github.com/nathan-andosen/html-parser/issues",
   "homepage": "https://github.com/nathan-andosen/html-parser",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -30,9 +30,10 @@
     "jasmine-terminal-reporter": "1.0.3",
     "nyc": "11.2.1",
     "ts-lint": "4.5.1",
-    "ts-loader": "3.0.3",
+    "ts-loader": "^4.5.0",
     "typescript": "2.5.3",
-    "webpack": "3.8.1",
+    "webpack": "^4.46.0",
+    "webpack-cli": "^4.9.2",
     "yargs": "4.8.0"
   },
   "scripts": {

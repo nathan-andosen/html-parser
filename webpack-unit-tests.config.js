@@ -13,7 +13,7 @@ module.exports = {
     extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.js']
   },
   module: {
-    loaders: [
+    rules: [
       { test: /\.ts(x?)$/, loader: 'ts-loader' }
     ]
   },

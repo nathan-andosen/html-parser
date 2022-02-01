@@ -1,4 +1,10 @@
 
+# 1.1.2
+
+__Fixed:__
+
+* Added more dist output files
+
 # 1.1.1
 
 __Fixed:__
